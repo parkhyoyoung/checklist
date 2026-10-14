@@ -1,0 +1,118 @@
+// 테마(배경) 선택 팝업
+@use "variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 10;
+
+  &.hidden { display: none; }
+}
+
+// 예/아니오 확인 팝업 (다른 팝업 위에 떠요)
+.overlay.confirm {
+  z-index: 20;
+  .modal { max-width: 280px; text-align: center; }
+  p { margin: 4px 0 18px; font-size: 16px; line-height: 1.5; word-break: keep-all; }
+  .confirm-btns {
+    display: flex; gap: 10px;
+    .btn { flex: 1; width: auto; margin-top: 0; }
+  }
+}
+
+.modal {
+  background: var(--surface);
+  color: var(--ink);
+  border: $edge;
+  border-radius: $radius-paper;
+  padding: 20px;
+  width: 100%;
+  max-width: 320px;
+  max-height: 90%;
+  overflow-y: auto;
+
+  h2 { margin: 0 0 16px; font-size: 18px; }
+  .btn { width: 100%; margin-top: 16px; }
+}
+
+.theme-modal { max-width: 340px; }
+
+.group-title {
+  margin: 14px 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+  &:first-of-type { margin-top: 0; }
+}
+
+// 한 줄로 쭉 늘어놓기 (칸 수가 달라도 한 줄에 다 들어가요)
+.swatch-row {
+  display: flex;
+  gap: 6px;
+
+  .swatch { flex: 1 1 0; min-width: 0; }
+
+  // 단색: 4개씩 두 줄
+  &.solid {
+    flex-wrap: wrap;
+    .swatch { flex: 0 0 calc((100% - 18px) / 4); }
+  }
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border: $edge;
+  border-radius: $radius-card;
+
+  i {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    display: block;
+  }
+
+  // "내 사진" 칸: 사진을 고르기 전에는 점선 동그라미 + 모양
+  i.custom-ico {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--line);
+    color: var(--muted);
+    font-size: 22px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  // 사진 첨부 아이콘(images/add.svg)이 있으면, 사진을 고르기 전에는 점선 동그라미 안에 그 그림을 넣어 보여줘요
+  .has-ic-add & i.custom-ico:not(.has-photo) {
+    width: 52px;
+    height: 52px;
+    font-size: 0;
+    background: var(--ic-add) center / 62% no-repeat;
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--accent);
+    background: var(--tint);
+  }
+}
+
+// 내 사진 테마일 때 나오는 "사진 바꾸기 / 사진 지우기"
+.custom-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+
+  .btn { margin-top: 0; padding: 8px 10px; font-size: 14px; }
+
+  &.hidden { display: none; }   // 내 사진 테마가 아닐 때는 숨김
+}

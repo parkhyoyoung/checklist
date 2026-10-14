@@ -1,0 +1,36 @@
+// 할 일 상세 페이지
+@use "variables" as *;
+
+.field-block {
+  margin-bottom: 18px;
+
+  // 배경 무늬 위에서도 읽히도록 종이색 바탕의 알약 안에 넣어요
+  > .label {
+    display: inline-block;
+    background: var(--surface);
+    color: var(--ink);
+    border: $edge;
+    border-radius: 999px;
+    padding: 2px 12px;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+}
+
+.inline {
+  display: flex;
+  gap: 8px;
+
+  .field { flex: 1; width: auto; }
+}
+
+.done-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--field);
+  border: $edge;
+  border-radius: $radius-card;
+  padding: 12px;
+  cursor: pointer;
+}

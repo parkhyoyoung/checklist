@@ -1,0 +1,151 @@
+// 귀여운 테마 ("cute") 전용 스타일 — 체크무늬 배경 + 종이 카드 + 손그림 느낌 테두리
+// 색은 _themes.scss 의 "cute" 값, 여기서는 모양과 장식만 다뤄요.
+@use "variables" as *;
+
+$cute-blue: #c9dcf0;     // 체크무늬 파랑
+$cute-cream: #f7ecd9;    // 체크무늬 크림
+$cute-check: 120px;      // 체크무늬 한 쌍(파랑+크림)의 크기
+$cute-edge: 2.5px solid var(--line);
+$cute-paper: 26px 21px 28px 19px / 21px 28px 19px 26px;  // 삐뚤빼뚤한 둥근 모서리
+$cute-paper-sm: 18px 15px 20px 14px / 15px 20px 14px 18px;
+$cute-pink: #f2a7b8;
+$cute-star: #f2c76e;
+
+[data-theme="cute"] {
+  body {
+    background-color: $cute-cream;
+    background-image: conic-gradient($cute-blue 25%, transparent 0 50%, $cute-blue 0 75%, transparent 0);
+    background-size: $cute-check $cute-check;
+    background-attachment: fixed;
+  }
+
+  // 종이 카드들
+  .panel,
+  .list-card,
+  .modal,
+  #items {
+    background: var(--surface);
+    border: $cute-edge;
+    box-shadow: none;
+  }
+
+  .panel { border-radius: $cute-paper; position: relative; }
+  .list-card { border-radius: $cute-paper-sm; }
+  .modal { border-radius: $cute-paper; }
+
+  // 제목 양옆 장식
+  #appTitle::before, #detailTitle::before {
+    content: "♥";
+    color: $cute-pink;
+    font-size: .7em;
+    margin-right: 8px;
+  }
+  #appTitle::after, #detailTitle::after {
+    content: "✦";
+    color: $cute-star;
+    font-size: .7em;
+    margin-left: 8px;
+  }
+  #detailTitle { text-align: center; }
+
+  // 박스 모서리 반짝이
+  .panel::before {
+    content: "✦";
+    position: absolute;
+    top: -12px;
+    right: 22px;
+    color: $cute-star;
+    font-size: 20px;
+  }
+  .panel::after {
+    content: "♥";
+    position: absolute;
+    bottom: -10px;
+    left: 20px;
+    color: $cute-pink;
+    font-size: 16px;
+  }
+
+  // 체크리스트 안: 줄 노트 느낌
+  #items {
+    border-radius: $cute-paper;
+    padding: 10px 15px;
+    min-height: 220px;
+  }
+
+  .item {
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid var(--line);
+    border-radius: 0;
+    margin-bottom: 0;
+
+    &.selected { background: rgba(111, 147, 184, .16); }
+  }
+
+  .chk, .selwrap { padding-left: 4px; }
+
+  .section-title { margin-top: 22px; }
+
+  // 체크무늬 위에서도 잘 보이도록 상단 버튼에 종이색 바탕
+  .back, .txt-btn {
+    background: var(--surface);
+    border: $cute-edge;
+    border-radius: 999px;
+    padding: 6px 14px;
+  }
+
+  .bar { height: 6px; border-radius: 999px; }
+  .bar > i { border-radius: 999px; }
+
+  // 네모난 손그림 체크박스
+  .chk input,
+  .done-row input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    border: $cute-edge;
+    border-color: var(--accent);
+    border-radius: 7px 8px 6px 9px;
+    background: transparent;
+    display: grid;
+    place-items: center;
+
+    &:checked {
+      background: var(--accent);
+
+      &::after {
+        content: "✓";
+        color: #fff;
+        font-size: 16px;
+        line-height: 1;
+      }
+    }
+  }
+
+  .selmark { border-radius: 7px 8px 6px 9px; border-color: var(--accent); }
+
+  // 버튼 · 입력창
+  .btn {
+    border-radius: 999px;
+    padding: 10px 18px;
+
+    &.ghost, &.danger { border: $cute-edge; }
+  }
+
+  input[type=text],
+  input[type=date].field,
+  textarea,
+  .done-row,
+  #appTitleInput {
+    background: #fffaf0;
+    border: $cute-edge;
+    border-radius: $cute-paper-sm;
+  }
+
+  .chip { border-width: 2px; background: #fffaf0; }
+
+  .swatch { border: $cute-edge; border-radius: $cute-paper-sm; }
+  .swatch[aria-pressed="true"] { border-color: var(--accent); background: rgba(111, 147, 184, .12); }
+}

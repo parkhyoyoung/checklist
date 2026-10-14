@@ -1,0 +1,111 @@
+// 모든 화면 위쪽 제목 박스 + 첫 화면의 체크리스트 카드
+@use "variables" as *;
+
+// 제목 박스 (첫 화면 / 체크리스트 안 / 할 일 상세 공통)
+.panel {
+  position: relative;
+  background: var(--surface);
+  border: $edge;
+  border-radius: $radius-paper;
+  padding: 4px 16px;
+  margin-bottom: 18px;
+
+  header { padding: 12px 0; }
+
+  h1 { text-align: center; }
+}
+
+#appTitle {
+  cursor: text;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#detailTitle { cursor: pointer; }
+
+#appTitleInput {
+  flex: 1;
+  font: inherit;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  background: var(--field);
+  border: $edge;
+  border-radius: $radius-card;
+  padding: 6px 10px;
+  min-width: 0;
+}
+
+// 체크리스트 카드
+.list-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--surface);
+  border: $edge;
+  border-radius: $radius-card;
+  padding: 14px;
+  margin-bottom: 10px;
+
+  .name  { font-weight: 600; word-break: break-all; }
+  .count { color: var(--muted); font-size: 14px; }
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.bar {
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  margin-top: 8px;
+  overflow: hidden;
+
+  > i {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 999px;
+  }
+}
+
+.warn {
+  color: var(--danger);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+// 배경(테마) 선택 버튼 — 화면 오른쪽 아래에 항상 떠 있어요
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: $edge;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
+  font-size: 26px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;   // 팝업(10)보다 아래
+
+  // 선택 삭제 모드에서는 삭제 바와 겹치지 않게 숨김
+  .selecting & { display: none; }
+}
+
+// 버튼에 그림 아이콘(images/icon-theme.png)을 넣었을 때의 크기
+.icon-img {
+  width: 30px;
+  height: 30px;
+  display: block;
+}

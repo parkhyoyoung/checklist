@@ -1,0 +1,179 @@
+@use "sass:map";
+@use "sass:list";
+@use "variables" as *;
+
+// ─────────────────────────────────────────────
+// 테마 색상 — 테마마다 아래 색들이 한 세트로 바뀌어요 (카드 모양은 모든 테마가 같아요)
+//
+//   bg       배경색 (체크무늬 테마는 체크의 바탕색)
+//   check    체크무늬 테마의 무늬 색 (체크무늬 테마에만 있어요)
+//   surface  카드/팝업 바탕색
+//   field    입력창, 칩 바탕색
+//   line     카드 테두리, 줄 색
+//   ink      글자색
+//   muted    흐린 글자색 (완료 항목, 마감일 칩)
+//   btn      버튼 바탕색        btn-ink  버튼 글자색 / 체크 표시(✓) 색
+//   btn-edge 버튼 테두리 색 (선택 사항, 배경과 버튼 색이 비슷할 때만 넣어요)
+//   accent   체크박스, 진행률 바 색
+//   danger   삭제/기한 지남 색
+//   tint     선택한 항목 배경 (accent 색을 아주 연하게)
+// ─────────────────────────────────────────────
+$themes: (
+  // ── 체크무늬 3종 ──
+  "check-sky": (
+    bg: #ffffff, check: #bfe0f7,
+    surface: #eef7fe, field: #ffffff, line: #8dbfe6, ink: #1f4a6e, muted: #5f87a6,
+    btn: #2f78b8, btn-ink: #ffffff, accent: #3a85c6, danger: #c93a52, tint: rgba(58, 133, 198, .14),
+  ),
+  "check-pink": (
+    bg: #ffffff, check: #ffb3b0,
+    surface: #fff3f2, field: #ffffff, line: #eea29d, ink: #5c2024, muted: #98696b,
+    btn: #b83a43, btn-ink: #ffffff, accent: #d6545b, danger: #b3261e, tint: rgba(214, 84, 91, .14),
+  ),
+  "check-red": (
+    bg: #161616, check: #b82040,
+    surface: #fff1f3, field: #ffffff, line: #d97085, ink: #4a0f1e, muted: #94606b,
+    btn: #b82040, btn-ink: #ffffff, btn-edge: #fff1f3, accent: #b82040, danger: #a31526, tint: rgba(184, 32, 64, .12),
+  ),
+  // ── 밤바다 (화면 가득 그림) ──
+  "sea": (
+    bg: #0b1d3a,
+    surface: rgba(19, 43, 79, .72), field: rgba(10, 28, 58, .7), line: rgba(160, 196, 245, .42), ink: #e3eeff, muted: #9db5d3,
+    btn: #6eb0ec, btn-ink: #08172e, accent: #7db8f0, danger: #ff8fa0, tint: rgba(125, 184, 240, .16),
+  ),
+  // ── 내 사진 (앱 안에서 고른 사진이 배경, 카드는 반투명한 흰색) ──
+  "custom": (
+    bg: #2b2b2b,
+    surface: rgba(255, 255, 255, .78), field: rgba(255, 255, 255, .72), line: rgba(110, 118, 125, .32), ink: #2f3437, muted: #666c72,
+    btn: #2f3437, btn-ink: #ffffff, btn-edge: #ffffff, accent: #2f3437, danger: #c0392b, tint: rgba(47, 52, 55, .08),
+  ),
+  // ── 한 가지 색 배경 ──
+  "white": (
+    bg: #f6f6f6,
+    surface: #ffffff, field: #f5f5f5, line: #d6d6d6, ink: #2f3437, muted: #858a8f,
+    btn: #2f3437, btn-ink: #ffffff, accent: #2f3437, danger: #c0392b, tint: rgba(47, 52, 55, .08),
+  ),
+  "black": (
+    bg: #0d0d0d,
+    surface: #1e1e1e, field: #2a2a2a, line: #3d3d3d, ink: #ededed, muted: #8f8f8f,
+    btn: #f2f2f2, btn-ink: #111111, accent: #f2f2f2, danger: #ff8a78, tint: rgba(242, 242, 242, .1),
+  ),
+  "blue": (
+    bg: #cfe3fb,
+    surface: #f2f8ff, field: #ffffff, line: #a9c8ee, ink: #1d3350, muted: #667b96,
+    btn: #3a6db3, btn-ink: #ffffff, accent: #4f86c9, danger: #c0392b, tint: rgba(79, 134, 201, .14),
+  ),
+  // 코발트 — 선명한 파란색 (글자와 버튼은 짙은 남색)
+  "cobalt": (
+    bg: #0261ef,
+    surface: #e9f1ff, field: #ffffff, line: #8db4f7, ink: #0a1f5c, muted: #5a6fae,
+    btn: #0b2573, btn-ink: #ffffff, accent: #0261ef, danger: #c8284a, tint: rgba(2, 97, 239, .13),
+  ),
+  "pink": (
+    bg: #ffb3b0,
+    surface: #fff3f2, field: #ffffff, line: #eea29d, ink: #5c2024, muted: #98696b,
+    btn: #b83a43, btn-ink: #ffffff, accent: #d6545b, danger: #b3261e, tint: rgba(214, 84, 91, .14),
+  ),
+  "orange": (
+    bg: #ffa462,
+    surface: #fff5ea, field: #ffffff, line: #e8a66d, ink: #4d2a0c, muted: #8a6743,
+    btn: #9a4708, btn-ink: #ffffff, accent: #d06a14, danger: #b3261e, tint: rgba(208, 106, 20, .14),
+  ),
+  "green": (
+    bg: #dcf1c4,
+    surface: #f7fcee, field: #ffffff, line: #bcd9a0, ink: #2f4a1d, muted: #6d8156,
+    btn: #4a7a1c, btn-ink: #ffffff, accent: #5f952a, danger: #c0392b, tint: rgba(95, 149, 42, .14),
+  ),
+);
+
+// 어두운 테마 (날짜 선택창, 스크롤바도 어둡게)
+$dark-themes: ("sea", "black");
+
+@mixin vars($map) {
+  @each $name, $value in $map {
+    --#{$name}: #{$value};
+  }
+}
+
+// 기본값 = 밤바다
+:root {
+  @include vars(map.get($themes, "sea"));
+}
+
+@each $theme, $colors in $themes {
+  [data-theme="#{$theme}"] {
+    @include vars($colors);
+
+    @if list.index($dark-themes, $theme) {
+      color-scheme: dark;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// 배경 그림 — images/bg-테마이름.png 파일을 넣으면 그 그림이 바둑판처럼 반복돼요
+//   (파일이 없으면 배경색, 체크무늬 테마는 CSS 체크무늬가 대신 보여요)
+//   예: images/bg-pink.png, images/bg-check-sky.png ...
+//   화면 가득 채우는 테마는 아래 $fullscreen 에 적혀 있어요 (밤바다)
+// ─────────────────────────────────────────────
+$fullscreen: ("sea", "custom");   // 무늬 반복 대신 따로 정한 규칙을 쓰는 테마
+
+@each $theme, $colors in $themes {
+  @if not list.index($fullscreen, $theme) {
+    [data-theme="#{$theme}"] body {
+      @if map.has-key($colors, "check") {
+        background-image:
+          url("../images/bg-#{$theme}.png"),
+          conic-gradient(var(--check) 25%, transparent 0 50%, var(--check) 0 75%, transparent 0);
+        background-size: $bg-tile $bg-tile, $check-size $check-size;
+      } @else {
+        background-image: url("../images/bg-#{$theme}.png");
+        background-size: $bg-tile $bg-tile;
+      }
+      background-attachment: fixed;
+    }
+  }
+}
+
+// 밤바다 — 직접 그린 그림이 화면 가득 채워져요 (반복 X, 비율 유지하며 꽉 채우고 넘치는 부분은 잘려요)
+//   images/bg-sea.png 또는 images/bg-sea.jpg 를 넣으면 적용돼요.
+//   그림이 없을 때는 아래 밤하늘색 그라데이션이 대신 보여요.
+[data-theme="sea"] body {
+  background-image:
+    url("../images/bg-sea.png"),
+    url("../images/bg-sea.jpg"),
+    linear-gradient(180deg, #0b1d3a 0%, #123058 55%, #1c4b7b 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+// 내 사진 — 앱에서 고른 사진이 화면 가득 채워져요 (사진 주소는 앱이 --user-bg 에 넣어줘요)
+[data-theme="custom"] body {
+  background-image: var(--user-bg, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+// 반투명 유리 카드 — 밤바다, 내 사진 테마에서 뒤의 그림이 비쳐 보여요. 흐림 효과로 글자는 그대로 읽혀요.
+//   투명한 정도: 위 "sea", "custom" 의 surface 마지막 숫자 (1 = 완전 불투명, 0 = 완전 투명)
+//   흐림 정도: 아래 blur(8px) 의 숫자
+//   아래 목록의 색은 팝업 바탕색이에요 (선택지가 많아서 거의 불투명하게)
+$glass: (
+  "sea": rgba(19, 43, 79, .94),
+  "custom": rgba(255, 255, 255, .95),
+);
+
+@each $theme, $modal-bg in $glass {
+  [data-theme="#{$theme}"] {
+    .panel, .list-card, #items, .empty, .fab {
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+
+    .modal { background: $modal-bg; }
+  }
+}

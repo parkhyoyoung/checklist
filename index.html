@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="sea">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1d3a" id="metaTheme">
+<title>체크리스트</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- 1. 리스트 목록 -->
+  <section id="home">
+    <div class="panel">
+      <header>
+        <h1 id="appTitle" title="두 번 누르면 이름을 바꿀 수 있어요">내 체크리스트</h1>
+      </header>
+    </div>
+    <div class="add-row">
+      <input type="text" id="newList" placeholder="새 체크리스트 이름" maxlength="40" aria-label="새 체크리스트 이름">
+      <button class="btn" id="addList">만들기</button>
+    </div>
+    <div id="lists"></div>
+  </section>
+
+  <!-- 2. 리스트 안 항목들 -->
+  <section id="detail" class="hidden">
+    <div class="panel">
+      <header>
+        <button class="back" id="back"><i class="ico ico-back"></i>목록</button>
+        <h1 id="detailTitle"></h1>
+        <button class="txt-btn" id="selBtn" aria-label="선택"><i class="ico ico-select"></i></button>
+      </header>
+    </div>
+    <div id="addArea">
+      <div class="add-row">
+        <input type="text" id="newItem" placeholder="할 일 추가" maxlength="100" aria-label="할 일 추가">
+        <button class="btn" id="addItem">추가</button>
+      </div>
+    </div>
+    <div id="items"></div>
+    <div class="sel-bar hidden" id="selBar">
+      <button class="btn danger" id="selDelete" style="width:100%">선택 항목 삭제</button>
+    </div>
+  </section>
+
+  <!-- 3. 항목 상세 -->
+  <section id="itemView" class="hidden">
+    <div class="panel">
+      <header>
+        <button class="back" id="backItem"><i class="ico ico-back"></i>뒤로</button>
+        <h1>할 일 상세</h1>
+        <span style="width:48px"></span>
+      </header>
+    </div>
+    <div class="field-block">
+      <label class="done-row"><input type="checkbox" id="vDone"><span>완료</span></label>
+    </div>
+    <div class="field-block">
+      <label class="label" for="vText">할 일</label>
+      <input type="text" id="vText" maxlength="100">
+    </div>
+    <div class="field-block">
+      <label class="label" for="vDue">마감일</label>
+      <div class="inline">
+        <input type="date" class="field" id="vDue">
+        <button class="btn ghost" id="vDueClear">지우기</button>
+      </div>
+    </div>
+    <div class="field-block">
+      <label class="label" for="vMemo">메모</label>
+      <textarea id="vMemo" placeholder="어떤 마감인지, 준비할 것 등을 적어두세요"></textarea>
+    </div>
+    <button class="btn danger" id="vDelete" style="width:100%">이 항목 삭제</button>
+  </section>
+
+</div>
+
+<!-- 배경(테마) 선택 버튼: 모든 화면 오른쪽 아래에 떠 있어요 -->
+<button class="fab" id="themeBtn" aria-label="배경 선택">🎨</button>
+
+<!-- 테마 팝업 -->
+<div class="overlay hidden confirm" id="confirmOv">
+  <div class="modal" role="alertdialog" aria-labelledby="confirmMsg">
+    <p id="confirmMsg"></p>
+    <div class="confirm-btns">
+      <button class="btn ghost" id="confirmNo">아니오</button>
+      <button class="btn" id="confirmYes">예</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="themeModal">
+  <div class="modal theme-modal" role="dialog" aria-label="테마 선택">
+    <h2>배경 선택</h2>
+    <h3 class="group-title">단색</h3>
+    <div class="swatch-row solid">
+      <button class="swatch" data-theme-pick="white" aria-label="흰색" title="흰색"><i style="background:url(images/swatch-white.png) center/cover,#f6f6f6"></i></button>
+      <button class="swatch" data-theme-pick="black" aria-label="검은색" title="검은색"><i style="background:url(images/swatch-black.png) center/cover,#0d0d0d"></i></button>
+      <button class="swatch" data-theme-pick="blue" aria-label="파란색" title="파란색"><i style="background:url(images/swatch-blue.png) center/cover,#cfe3fb"></i></button>
+      <button class="swatch" data-theme-pick="cobalt" aria-label="코발트" title="코발트"><i style="background:url(images/swatch-cobalt.png) center/cover,#0261ef"></i></button>
+      <button class="swatch" data-theme-pick="pink" aria-label="분홍색" title="분홍색"><i style="background:url(images/swatch-pink.png) center/cover,#ffb3b0"></i></button>
+      <button class="swatch" data-theme-pick="orange" aria-label="주황색" title="주황색"><i style="background:url(images/swatch-orange.png) center/cover,#ffa462"></i></button>
+      <button class="swatch" data-theme-pick="green" aria-label="연두색" title="연두색"><i style="background:url(images/swatch-green.png) center/cover,#dcf1c4"></i></button>
+    </div>
+    <h3 class="group-title">체크무늬</h3>
+    <div class="swatch-row check">
+      <button class="swatch" data-theme-pick="check-sky" aria-label="하늘 체크" title="하늘 체크"><i style="background:url(images/swatch-check-sky.png) center/cover,conic-gradient(#bfe0f7 25%,#ffffff 0 50%,#bfe0f7 0 75%,#ffffff 0) 0 0/20px 20px"></i></button>
+      <button class="swatch" data-theme-pick="check-pink" aria-label="분홍 체크" title="분홍 체크"><i style="background:url(images/swatch-check-pink.png) center/cover,conic-gradient(#ffb3b0 25%,#ffffff 0 50%,#ffb3b0 0 75%,#ffffff 0) 0 0/20px 20px"></i></button>
+      <button class="swatch" data-theme-pick="check-red" aria-label="빨강 체크" title="빨강 체크"><i style="background:url(images/swatch-check-red.png) center/cover,conic-gradient(#b82040 25%,#161616 0 50%,#b82040 0 75%,#161616 0) 0 0/20px 20px"></i></button>
+    </div>
+    <h3 class="group-title">일러스트</h3>
+    <div class="swatch-row art">
+      <button class="swatch" data-theme-pick="sea" aria-label="밤바다" title="밤바다"><i style="background:url(images/swatch-sea.png) center/cover,linear-gradient(180deg,#0b1d3a,#1c4b7b)"></i></button>
+      <button class="swatch" data-theme-pick="custom" aria-label="내 사진" title="내 사진"><i class="custom-ico" id="customSwatch">＋</i></button>
+    </div>
+    <div class="custom-actions hidden" id="customActions">
+      <button class="btn ghost" id="bgChange">사진 바꾸기</button>
+      <button class="btn ghost" id="bgRemove">사진 지우기</button>
+    </div>
+    <input type="file" id="bgFile" accept="image/*" hidden>
+    <button class="btn" id="themeClose">닫기</button>
+  </div>
+</div>
+
+<script src="js/checkbox-svg.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+// 자주 쓰는 값 — 여기서 바꾸면 여러 곳에 한꺼번에 적용돼요
+$font-main: "GmarketSans", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+$app-width: 560px;   // 앱 최대 폭
+
+// 둥근 모서리 (값 4개를 다르게 줘서 손으로 그린 듯 삐뚤빼뚤하게)
+$radius-paper: 26px 21px 28px 19px / 21px 28px 19px 26px;  // 큰 박스 (제목 박스, 노트, 팝업)
+$radius-card:  18px 15px 20px 14px / 15px 20px 14px 18px;  // 리스트 카드, 입력창
+$radius-check: 7px 8px 6px 9px;                              // 체크박스
+
+$edge: 2.5px solid var(--line);   // 박스 테두리
+
+// 체크무늬 배경
+$check-size: 120px;   // 체크 두 칸(무늬색+바탕색 한 쌍)의 크기 (화면상 px)
+
+// 배경 그림 한 장이 화면에서 차지하는 크기 (그림 파일은 이 크기의 3배로 그리는 걸 추천)
+$bg-tile: 120px;

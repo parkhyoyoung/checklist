@@ -1,0 +1,229 @@
+// 폰트 · 기본 레이아웃 · 공통 버튼/입력창/체크박스
+@use "variables" as *;
+
+@font-face {
+  font-family: "GmarketSans";
+  src: url("../fonts/GmarketSansMedium.woff") format("woff");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: $font-main;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.app {
+  max-width: $app-width;
+  margin: 0 auto;
+  min-height: 100%;
+  padding: 16px 16px 96px;   // 아래 여백: 떠 있는 버튼에 내용이 가려지지 않게
+}
+
+.hidden { display: none; }
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+
+  h1 {
+    font-size: 22px;
+    margin: 0;
+    flex: 1;
+    word-break: break-all;
+  }
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+  color: inherit;
+  background: none;
+}
+
+// 알약 모양 버튼
+.btn {
+  background: var(--btn);
+  color: var(--btn-ink);
+  border: 2.5px solid var(--btn-edge, transparent);   // 테마에 btn-edge 가 있을 때만 보여요
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 600;
+
+  &.ghost  { background: var(--surface); color: var(--ink);    border: $edge; }
+  &.danger { background: var(--surface); color: var(--danger); border: $edge; }
+  &:disabled { opacity: .4; cursor: default; }
+}
+
+.icon {
+  color: var(--muted);
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 18px;
+  line-height: 1;
+
+  &.del:active { color: var(--danger); }
+}
+
+// 아이콘 (images/back.svg, close.svg 가 있으면 그림으로, 없으면 ← ✕ 글자로 보여요)
+.ico { display: inline-block; vertical-align: middle; font-style: normal; }
+.ico-back { margin-right: 2px; &::before { content: "←"; } }
+.ico-close::before { content: "✕"; }
+.ico-select::before { content: "선택"; }
+.has-ic-back .ico-back { width: 20px; height: 20px; background: var(--ic-back) center / contain no-repeat; &::before { content: none; } }
+.has-ic-close {
+  .ico-close { display: block; width: 18px; height: 18px; background: var(--ic-close) center / contain no-repeat; &::before { content: none; } }
+  .icon.del:active .ico-close { background-image: var(--ic-close-hot); }
+}
+.has-ic-select .ico-select { display: block; width: 26px; height: 26px; background: var(--ic-select) center / contain no-repeat; &::before { content: none; } }
+
+.txt-btn {
+  color: var(--ink);
+  font-size: 15px;
+  padding: 8px 4px 8px 8px;
+  white-space: nowrap;
+}
+
+.back {
+  font-size: 15px;
+  color: var(--ink);
+  padding: 8px 8px 8px 0;
+}
+
+// 입력창
+input[type=text],
+input[type=date].field,
+textarea {
+  font: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: $edge;
+  border-radius: $radius-card;
+  padding: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+textarea {
+  height: 160px;       // 메모칸 높이 (넘치는 글은 안에서 스크롤)
+  resize: none;        // 크기 조절 손잡이 없음
+  overflow-y: auto;
+  line-height: 1.5;
+}
+
+// 네모난 손그림 체크박스
+.chk input,
+.done-row input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border: $edge;
+  border-color: var(--accent);
+  border-radius: $radius-check;
+  background: transparent;
+  display: grid;
+  place-items: center;
+
+  &:checked {
+    background: var(--accent);
+
+    &::after {
+      content: "✓";
+      color: var(--btn-ink);
+      font-size: 16px;
+      line-height: 1;
+    }
+  }
+}
+
+// 직접 그린 체크박스 그림 (images/checkbox.svg + images/checkbox-checked.svg → npm run build)
+//   앱이 그림을 --cb-off / --cb-on 변수에 넣어주고, has-checkimg 표시를 달아줘요.
+//   SVG 안에서 currentColor 로 칠한 부분은 테마 포인트 색(accent)으로 바뀌어요.
+.has-checkimg {
+  .chk input,
+  .done-row input {
+    border: 0;
+    border-radius: 0;
+    background: var(--cb-off) center / contain no-repeat;
+
+    &:checked {
+      background: var(--cb-on) center / contain no-repeat;
+
+      &::after { content: none; }   // 기본 ✓ 표시는 숨김
+    }
+  }
+
+  // 선택 삭제 모드의 네모 표시도 같은 그림으로
+  .selmark {
+    border: 0;
+    border-radius: 0;
+    font-size: 0;
+    background: var(--cb-off) center / contain no-repeat;
+  }
+
+  .item.selected .selmark {
+    border: 0;
+    background: var(--cb-on) center / contain no-repeat;
+  }
+}
+
+// 키보드 포커스 표시
+.btn:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+.icon:focus-visible,
+.swatch:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.add-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  input[type=text] { flex: 1; width: auto; }
+}
+
+// 비어 있을 때 안내 문구 (종이 카드 안에 표시)
+.empty {
+  text-align: center;
+  color: var(--muted);
+  background: var(--surface);
+  border: $edge;
+  border-radius: $radius-card;
+  padding: 36px 16px;
+  line-height: 1.6;
+}
+
+// 체크리스트 노트 안의 안내 문구는 카드 테두리 없이
+#items .empty {
+  background: none;
+  border: 0;
+}
+
+.section-title {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 22px 0 8px;
+}
