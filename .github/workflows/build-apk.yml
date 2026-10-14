@@ -31,11 +31,11 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      -          - name: 앱 아이콘 적용 (images/app-icon.png 가 있을 때만)
-           if: hashFiles('images/app-icon.png') != ''
-           run: |
-             node scripts/make-icons.js
-             npx @capacitor/assets generate --android --iconBackgroundColor "$(cat assets/bg-color.txt)"
+      - name: 앱 아이콘 적용 (images/app-icon.png 가 있을 때만)
+        if: hashFiles('images/app-icon.png') != ''
+        run: |
+          node scripts/make-icons.js
+          npx @capacitor/assets generate --android --iconBackgroundColor "$(cat assets/bg-color.txt)"
 
       - name: APK 빌드
         working-directory: android
