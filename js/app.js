@@ -189,8 +189,10 @@
   /* ---------- 예/아니오 확인 팝업 ---------- */
   const confirmOv = $("confirmOv");
   let confirmCb = null, pendingYes = null, pendingNo = false;
-  function askConfirm(msg, onYes) {
+  function askConfirm(msg, onYes, yesLabel = "예", noLabel = "아니오") {
     $("confirmMsg").textContent = msg;
+    $("confirmYes").textContent = yesLabel;
+    $("confirmNo").textContent = noLabel;
     confirmCb = onYes;
     confirmOv.classList.remove("hidden");
     history.pushState({ v: "confirm" }, "");   // 안드로이드 뒤로가기 = 아니오
@@ -472,10 +474,37 @@
     else if (currentId) showHome();
   });
 
+  /* ---------- 새 버전 알림 ---------- */
+  // GitHub 저장소의 "최신 릴리스"를 열 때마다 확인해서, 내 버전보다 새 버전이면 팝업을 띄워요.
+  // (저장소가 Public 일 때만 확인할 수 있어요. 확인에 실패하면 아무것도 안 하고 넘어가요.)
+  const UPDATE_REPO = "parkhyoyoung/checklist";
+  const verParts = (v) => String(v).replace(/^v/i, "").split(".").map(n => parseInt(n, 10) || 0);
+  function isNewer(latest, current) {
+    const a = verParts(latest), b = verParts(current);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0);
+    }
+    return false;
+  }
+  async function checkUpdate() {
+    if (!window.APP_VERSION || !UPDATE_REPO) return;
+    try {
+      const res = await fetch(`https://api.github.com/repos/${UPDATE_REPO}/releases/latest`, { headers: { Accept: "application/vnd.github+json" } });
+      if (!res.ok) return;
+      const rel = await res.json();
+      const latest = String(rel.tag_name || "").replace(/^v/i, "");
+      if (!latest || !isNewer(latest, window.APP_VERSION)) return;
+      const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
+      const url = (apk && apk.browser_download_url) || rel.html_url;
+      askConfirm(`새 버전이 있어요 (v${latest})\n지금 받을까요?`, () => { window.open(url, "_blank"); }, "받기", "나중에");
+    } catch (e) { /* 인터넷이 없거나 확인할 수 없으면 조용히 넘어가요 */ }
+  }
+
   load();
   let saved = "sea";
   try { saved = localStorage.getItem(THEME_KEY) || "sea"; } catch (e) {}
   applyTheme(saved);
+  setTimeout(checkUpdate, 1500);
   // 저장해 둔 내 사진이 있으면 불러오고, 없는데 내 사진 테마였다면 기본 테마로 돌아가요
   bgGet().then(blob => {
     if (blob) showBg(blob);

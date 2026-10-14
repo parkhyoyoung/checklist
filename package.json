@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "node scripts/inline-svg.js && sass scss/style.scss css/style.css --no-source-map",
+    "build": "node scripts/make-version.js && node scripts/inline-svg.js && sass scss/style.scss css/style.css --no-source-map",
     "build:svg": "node scripts/inline-svg.js",
     "watch": "sass --watch scss/style.scss css/style.css --no-source-map",
     "build:web": "npm run build && node scripts/copy-web.js"

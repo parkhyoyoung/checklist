@@ -36,3 +36,10 @@
 - 앱 아이콘: `images/app-icon.png` (1024×1024 PNG) 를 넣으면 APK 에 적용돼요. 없으면 기본 아이콘이에요.
 - 앱 이름과 ID 는 `capacitor.config.json` 에서 바꿀 수 있어요.
 - 디자인을 고친 뒤에는 `npm run build` 로 CSS/SVG 를 만들고, 다시 파일을 올려서 Run workflow 를 해요.
+
+## 새 버전 알림 / 업데이트
+
+- 앱을 열 때마다 GitHub 저장소의 **최신 릴리스**를 확인해서, 내 버전보다 새 버전이면 "새 버전이 있어요" 팝업을 띄워요. (저장소가 **Public** 이어야 확인할 수 있어요)
+- 새 버전을 내는 방법: `package.json` 의 `"version"` 을 올리고 (예: 1.0.0 → 1.0.1) 저장소에 올리면, 빌드가 끝나고 **Releases** 에 `checklist-v1.0.1.apk` 가 자동으로 올라가요.
+- 저장소 주소를 바꾸면 `js/app.js` 의 `UPDATE_REPO` 값도 같이 바꿔요.
+- 덮어쓰기 설치(데이터 유지)를 하려면 서명 키가 늘 같아야 해요. GitHub 저장소 Settings → Secrets and variables → Actions 에 `DEBUG_KEYSTORE_BASE64` 를 등록하세요.
