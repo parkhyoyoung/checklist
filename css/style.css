@@ -538,10 +538,6 @@ textarea:focus-visible,
 }
 
 #items .empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
   background: none;
   border: 0;
 }
@@ -670,7 +666,7 @@ textarea:focus-visible,
   background: var(--surface);
   border: 2.5px solid var(--line);
   border-radius: 26px 21px 28px 19px/21px 28px 19px 26px;
-  padding: 10px 15px;
+  padding: 6px 16px 14px;
   min-height: 220px;
 }
 
