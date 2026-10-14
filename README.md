@@ -22,3 +22,17 @@
 ## 내 사진 배경
 앱에서 🎨 버튼 → "내 사진"을 누르면 폰에 있는 사진을 골라 배경으로 쓸 수 있어요.
 고른 사진은 앱 안에만 저장돼요. (코드: `js/app.js`의 "내 사진 배경" 부분, 색: `scss/_themes.scss`의 "custom")
+
+## APK 만들기 (GitHub Actions — 내 컴퓨터에 안드로이드 도구를 깔지 않아도 돼요)
+
+1. github.com 에 가입하고 새 저장소(Repository)를 만들어요. (Private 으로 해도 돼요)
+2. 이 폴더 안의 파일을 **전부** 저장소에 올려요. (`node_modules` 폴더는 올리지 마세요)
+   - `.github/workflows/build-apk.yml` 도 꼭 올라가야 해요. 점(.)으로 시작하는 폴더가 안 올라가면
+     저장소에서 Add file → Create new file 로 `.github/workflows/build-apk.yml` 을 만들고 내용을 붙여넣어요.
+3. 저장소의 **Actions** 탭 → "APK 만들기" → **Run workflow** 를 눌러요. (파일을 올리면 자동으로도 실행돼요)
+4. 5~10분 뒤 초록색 체크가 뜨면 그 실행을 열어서 맨 아래 **Artifacts → checklist-apk** 를 내려받아요.
+5. 압축을 풀면 `app-debug.apk` 가 나와요. 폰으로 옮겨서 설치해요. (출처를 알 수 없는 앱 설치 허용 필요)
+
+- 앱 아이콘: `images/app-icon.png` (1024×1024 PNG) 를 넣으면 APK 에 적용돼요. 없으면 기본 아이콘이에요.
+- 앱 이름과 ID 는 `capacitor.config.json` 에서 바꿀 수 있어요.
+- 디자인을 고친 뒤에는 `npm run build` 로 CSS/SVG 를 만들고, 다시 파일을 올려서 Run workflow 를 해요.

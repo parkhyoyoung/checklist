@@ -5,9 +5,15 @@
   "scripts": {
     "build": "node scripts/inline-svg.js && sass scss/style.scss css/style.css --no-source-map",
     "build:svg": "node scripts/inline-svg.js",
-    "watch": "sass --watch scss/style.scss css/style.css --no-source-map"
+    "watch": "sass --watch scss/style.scss css/style.css --no-source-map",
+    "build:web": "npm run build && node scripts/copy-web.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^6.2.0",
     "sass": "^1.77.0"
   }
 }
