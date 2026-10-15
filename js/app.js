@@ -1,4 +1,17 @@
-const KEY = "checklist-app-v1";
+  // 안드로이드 앱 기능(플러그인) 꺼내 쓰기. 번들러 없이도 찾을 수 있게 registerPlugin 으로 불러와요.
+  const pluginCache = {};
+  function getPlugin(name) {
+    const C = window.Capacitor;
+    if (!C) return null;
+    if (pluginCache[name]) return pluginCache[name];
+    let p = null;
+    try {
+      p = (C.Plugins && C.Plugins[name]) || (typeof C.registerPlugin === "function" ? C.registerPlugin(name) : null);
+    } catch (e) { p = null; }
+    if (p) pluginCache[name] = p;
+    return p;
+  }
+  const KEY = "checklist-app-v1";
   const THEME_KEY = "checklist-theme";
   const THEME_COLORS = { "check-sky":"#ffffff", "check-pink":"#ffffff", "check-red":"#161616", sea:"#0b1d3a", white:"#f6f6f6", black:"#0d0d0d", blue:"#cfe3fb", cobalt:"#0261ef", pink:"#ffb3b0", orange:"#ffa462", green:"#dcf1c4", custom:"#2b2b2b" };
   let data = { lists: [] };   // { id, name, items:[{ id, text, done, due, memo }] }
@@ -719,7 +732,7 @@ const KEY = "checklist-app-v1";
   }
 
   // 안드로이드 기기의 뒤로가기 버튼: 홈이면 앱 종료, 아니면 이전 화면(위 popstate 처리)으로
-  const CapApp = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+  const CapApp = getPlugin("App");
   if (CapApp && CapApp.addListener) {
     CapApp.addListener("backButton", () => {
       if (!noticeOv.classList.contains("hidden")) return closeNotice();
@@ -755,8 +768,12 @@ const KEY = "checklist-app-v1";
       const url = (apk && apk.browser_download_url) || rel.html_url;
       askConfirm(`새 버전이 있어요 (v${latest})\n지금 받을까요?`, () => {
         // 앱 안(WebView)에서는 window.open 이 막혀서, 브라우저를 여는 플러그인으로 열어요
-        const Br = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser;
-        if (Br && Br.open) Br.open({ url }); else window.open(url, "_blank");
+        const Br = getPlugin("Browser");
+        try {
+          if (Br && Br.open) { Br.open({ url }); return; }
+        } catch (e) {}
+        // 플러그인이 없으면 주소로 이동 → 앱 밖의 주소라서 안드로이드가 폰 브라우저로 열어줘요
+        window.location.href = url;
       }, "받기", "나중에", true);   // 받기 쪽에 포커스
     } catch (e) { /* 인터넷이 없거나 확인할 수 없으면 조용히 넘어가요 */ }
   }
