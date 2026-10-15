@@ -766,15 +766,7 @@
       if (!latest || !isNewer(latest, window.APP_VERSION)) return;
       const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
       const url = (apk && apk.browser_download_url) || rel.html_url;
-      askConfirm(`새 버전이 있어요 (v${latest})\n지금 받을까요?`, () => {
-        // 앱 안(WebView)에서는 window.open 이 막혀서, 브라우저를 여는 플러그인으로 열어요
-        const Br = getPlugin("Browser");
-        try {
-          if (Br && Br.open) { Br.open({ url }); return; }
-        } catch (e) {}
-        // 플러그인이 없으면 주소로 이동 → 앱 밖의 주소라서 안드로이드가 폰 브라우저로 열어줘요
-        window.location.href = url;
-      }, "받기", "나중에", true);   // 받기 쪽에 포커스
+      askConfirm(`새 버전이 있어요 (v${latest})\n지금 받을까요?`, () => { window.open(url, "_blank"); }, "받기", "나중에", true);   // 받기 쪽에 포커스
     } catch (e) { /* 인터넷이 없거나 확인할 수 없으면 조용히 넘어가요 */ }
   }
 
