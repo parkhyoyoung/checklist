@@ -1,4 +1,4 @@
-  const KEY = "checklist-app-v1";
+const KEY = "checklist-app-v1";
   const THEME_KEY = "checklist-theme";
   const THEME_COLORS = { "check-sky":"#ffffff", "check-pink":"#ffffff", "check-red":"#161616", sea:"#0b1d3a", white:"#f6f6f6", black:"#0d0d0d", blue:"#cfe3fb", cobalt:"#0261ef", pink:"#ffb3b0", orange:"#ffa462", green:"#dcf1c4", custom:"#2b2b2b" };
   let data = { lists: [] };   // { id, name, items:[{ id, text, done, due, memo }] }
@@ -211,14 +211,14 @@
   /* ---------- 예/아니오 확인 팝업 ---------- */
   const confirmOv = $("confirmOv");
   let confirmCb = null, pendingYes = null, pendingNo = false;
-  function askConfirm(msg, onYes, yesLabel = "예", noLabel = "아니오") {
+  function askConfirm(msg, onYes, yesLabel = "예", noLabel = "아니오", focusYes = false) {
     $("confirmMsg").textContent = msg;
     $("confirmYes").textContent = yesLabel;
     $("confirmNo").textContent = noLabel;
     confirmCb = onYes;
     confirmOv.classList.remove("hidden");
     history.pushState({ v: "confirm" }, "");   // 안드로이드 뒤로가기 = 아니오
-    $("confirmNo").focus();
+    (focusYes ? $("confirmYes") : $("confirmNo")).focus();
   }
   function closeConfirm(yes) {
     if (confirmOv.classList.contains("hidden")) return;
@@ -753,7 +753,11 @@
       if (!latest || !isNewer(latest, window.APP_VERSION)) return;
       const apk = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
       const url = (apk && apk.browser_download_url) || rel.html_url;
-      askConfirm(`새 버전이 있어요 (v${latest})\n지금 받을까요?`, () => { window.open(url, "_blank"); }, "받기", "나중에");
+      askConfirm(`새 버전이 있어요 (v${latest})\n지금 받을까요?`, () => {
+        // 앱 안(WebView)에서는 window.open 이 막혀서, 브라우저를 여는 플러그인으로 열어요
+        const Br = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser;
+        if (Br && Br.open) Br.open({ url }); else window.open(url, "_blank");
+      }, "받기", "나중에", true);   // 받기 쪽에 포커스
     } catch (e) { /* 인터넷이 없거나 확인할 수 없으면 조용히 넘어가요 */ }
   }
 
