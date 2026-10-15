@@ -112,7 +112,6 @@
 .view-row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: 10px;
   margin: 0 2px 10px;
   color: var(--ink);
@@ -162,7 +161,6 @@
   display: flex;
   align-items: center;
   border-bottom: 2px solid var(--line);
-  cursor: pointer;
 
   &:last-child { border-bottom: 0; }
   .t { flex: 1; min-width: 0; padding: 10px 4px 10px 10px; word-break: break-all; }   // 들여쓰기 10px
@@ -183,4 +181,32 @@
 
   svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
   &.on { color: var(--accent); svg { fill: currentColor; } }
+}
+
+.view-row .list-count { margin-right: auto; color: var(--muted); }
+
+// 메인 화면: 위쪽(제목·새로 만들기·전체 보기)은 고정, 체크리스트 목록만 스크롤
+body.on-home {
+  overflow: hidden;
+
+  .app {
+    height: 100%;
+    padding-bottom: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  #home {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  #lists {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 96px;   // 떠 있는 배경 버튼에 마지막 카드가 가려지지 않게
+  }
+  .panel, .add-row, .view-row { flex: none; }
 }

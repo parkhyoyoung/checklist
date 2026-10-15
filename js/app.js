@@ -89,6 +89,7 @@
   /* ---------- 화면 그리기 ---------- */
   function renderHome() {
     const box = $("lists");
+    $("listCount").textContent = `총 ${data.lists.length}개 목록`;
     if (!data.lists.length) {
       box.innerHTML = '<div class="empty">아직 체크리스트가 없어요.<br>위에서 이름을 입력하고 만들어보세요.</div>';
       return;
@@ -172,11 +173,14 @@
     $("vMemo").value = it.memo || "";
   }
 
-  function hideAll() { ["home", "detail", "itemView"].forEach(id => $(id).classList.add("hidden")); }
+  function hideAll() {
+    ["home", "detail", "itemView"].forEach(id => $(id).classList.add("hidden"));
+    document.body.classList.remove("on-home");
+  }
   function showHome() {
     selectMode = false; selected.clear(); document.body.classList.remove("selecting");
     currentId = null; itemId = null;
-    hideAll(); $("home").classList.remove("hidden"); renderHome();
+    hideAll(); $("home").classList.remove("hidden"); document.body.classList.add("on-home"); renderHome();
   }
   function showList(id, push) {
     if (push) history.pushState({ v: "list" }, "");
@@ -241,13 +245,7 @@
   $("newList").onkeydown = e => { if (e.key === "Enter") addList(); };
   $("lists").onclick = e => {
     if (e.target.closest(".drag")) return;
-    const mini = e.target.closest("[data-mini]");
-    if (mini && !e.target.closest(".chk")) {          // 펼친 항목을 누르면 그 항목 상세로
-      const lid = mini.closest("[data-lid]").dataset.lid;
-      showList(lid, true); showItem(mini.dataset.mini);
-      return;
-    }
-    if (mini) return;
+    if (e.target.closest("[data-mini]")) return;       // 전체 보기의 항목은 보기만 (눌러도 아무 일 없음)
     const pin = e.target.closest("[data-pin]");
     if (pin) {                                          // 상단 고정 켜기/끄기
       const l = data.lists.find(x => x.id === pin.dataset.pin);
@@ -608,7 +606,9 @@
       const all = [...container.querySelectorAll(rowSel)];
       const group = all.filter(r => r.dataset.group === row.dataset.group);
       const i0 = group.indexOf(row);
-      const sy0 = window.scrollY;
+      const sc = container.id === "lists" ? container : null;      // 스크롤되는 칸 (홈 목록) 또는 화면 전체
+      const getScroll = () => sc ? sc.scrollTop : window.scrollY;
+      const sy0 = getScroll();
       const tops = group.map(r => r.getBoundingClientRect().top + sy0);   // 문서 기준 원래 위치
       const mids = group.map((r, i) => tops[i] + r.offsetHeight / 2);
       const cs = getComputedStyle(row);
@@ -617,9 +617,10 @@
       let target = i0;
       row.classList.add("dragging");
       const move = ev => {
-        if (ev.clientY < 70) window.scrollBy(0, -12);
-        else if (ev.clientY > window.innerHeight - 70) window.scrollBy(0, 12);
-        const top = ev.clientY + window.scrollY - grab;          // 끌고 있는 항목의 문서 기준 위치
+        const area = sc ? sc.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+        const dy = ev.clientY < area.top + 50 ? -12 : ev.clientY > area.bottom - 50 ? 12 : 0;
+        if (dy) { if (sc) sc.scrollTop += dy; else window.scrollBy(0, dy); }
+        const top = ev.clientY + getScroll() - grab;          // 끌고 있는 항목의 문서 기준 위치
         const center = top + row.offsetHeight / 2;
         target = 0;
         mids.forEach((m, i) => { if (i !== i0 && m < center) target++; });
