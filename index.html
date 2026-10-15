@@ -21,6 +21,10 @@
       <input type="text" id="newList" placeholder="새 체크리스트 이름" maxlength="40" aria-label="새 체크리스트 이름">
       <button class="btn" id="addList">만들기</button>
     </div>
+    <div class="view-row">
+      <span id="viewAllLabel">전체 보기</span>
+      <button class="switch" id="viewAllToggle" role="switch" aria-checked="false" aria-labelledby="viewAllLabel"><i></i></button>
+    </div>
     <div id="lists"></div>
   </section>
 
@@ -28,7 +32,7 @@
   <section id="detail" class="hidden">
     <div class="panel">
       <header>
-        <button class="back" id="back"><i class="ico ico-back"></i>목록</button>
+        <button class="back" id="back" aria-label="뒤로"><i class="ico ico-back"></i></button>
         <h1 id="detailTitle"></h1>
         <button class="txt-btn" id="selBtn" aria-label="선택"><i class="ico ico-select"></i></button>
       </header>
@@ -49,7 +53,7 @@
   <section id="itemView" class="hidden">
     <div class="panel">
       <header>
-        <button class="back" id="backItem"><i class="ico ico-back"></i>뒤로</button>
+        <button class="back" id="backItem" aria-label="뒤로"><i class="ico ico-back"></i></button>
         <h1>할 일 상세</h1>
         <span style="width:48px"></span>
       </header>
@@ -121,6 +125,45 @@
     </div>
     <input type="file" id="bgFile" accept="image/*" hidden>
     <button class="btn" id="themeClose">닫기</button>
+  </div>
+</div>
+
+<!-- 업데이트 안내 -->
+<div class="overlay hidden notice" id="noticeOv">
+  <div class="modal notice-modal">
+    <h2>🫧 app 업데이트 안내 🫧</h2>
+    <div class="notice-body">
+      <p>체크리스트 목록끼리의 순서 변경이 가능해졌어요!<br>상단에 고정기능도 추가되었으니 중요한 일정이 아래로 깔리지 않도록 관리가 가능해요😀</p>
+      <p>배경 이미지 변경 시 크롭이 가능하게 되었어요!<br>내가 원하는 부분으로 나만의 체크리스트를 만들어보세요!</p>
+      <p>메인화면에서 내 체크리스트 목록을 볼 수 있는 기능이 추가되었어요!<br>일일히 눌러보지 않아도 내 할일 목록들을 체크해보세요</p>
+    </div>
+    <label class="chk notice-check"><input type="checkbox" id="noticeHide"><span>다시 보지 않기</span></label>
+    <button class="btn" id="noticeClose">닫기</button>
+  </div>
+</div>
+
+<!-- 사진 자르기 -->
+<div class="overlay hidden crop" id="cropOv">
+  <div class="modal crop-modal">
+    <h2>사진 자르기</h2>
+    <div class="crop-wrap">
+      <div class="crop-stage" id="cropStage">
+        <img id="cropImg" alt="">
+        <div class="crop-box" id="cropBox">
+          <i data-c="tl"></i><i data-c="tr"></i><i data-c="bl"></i><i data-c="br"></i>
+        </div>
+      </div>
+    </div>
+    <div class="crop-ratios" id="cropRatios">
+      <button class="btn ghost" data-ratio="screen">화면 비율</button>
+      <button class="btn ghost" data-ratio="free">자유</button>
+      <button class="btn ghost" data-ratio="1:1">1:1</button>
+      <button class="btn ghost" data-ratio="3:4">3:4</button>
+    </div>
+    <div class="confirm-btns">
+      <button class="btn ghost" id="cropCancel">취소</button>
+      <button class="btn" id="cropOk">적용</button>
+    </div>
   </div>
 </div>
 
