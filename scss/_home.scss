@@ -7,10 +7,13 @@
   background: var(--surface);
   border: $edge;
   border-radius: $radius-paper;
-  padding: 4px 16px;
+  padding: 0 16px;
   margin-bottom: 18px;
+  min-height: 65px;          // 제목 칸 높이 (내 체크리스트 / 리스트 제목 / 할 일 상세)
+  display: flex;
+  align-items: center;
 
-  header { padding: 12px 0; }
+  header { padding: 0; width: 100%; }
 
   h1 { text-align: center; }
 }

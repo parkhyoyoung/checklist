@@ -687,13 +687,14 @@
   /* ---------- 뒤로가기(안드로이드) ---------- */
   history.replaceState({ v: "home" }, "");
   window.addEventListener("popstate", () => {
+    // 확인 팝업(예/아니오, 새 버전 알림)이 가장 위에 있어서 제일 먼저 처리해요
+    if (!confirmOv.classList.contains("hidden")) { confirmOv.classList.add("hidden"); confirmCb = null; return; }  // 뒤로가기 = 아니오
+    if (pendingYes) { const cb = pendingYes; pendingYes = null; cb(); return; }
+    if (pendingNo) { pendingNo = false; return; }
     if (noticePending) { noticePending = false; return; }
     if (!noticeOv.classList.contains("hidden")) { hideNoticeFlag(); noticeOv.classList.add("hidden"); return; }   // 뒤로가기 = 닫기
     if (cropPending) { cropPending = false; return; }                                                  // 자르기 창을 버튼으로 닫은 경우
     if (!cropOv.classList.contains("hidden")) { closeCropByBack(); return; }                           // 뒤로가기 = 자르기 취소
-    if (!confirmOv.classList.contains("hidden")) { confirmOv.classList.add("hidden"); confirmCb = null; return; }  // 뒤로가기 = 아니오
-    if (pendingYes) { const cb = pendingYes; pendingYes = null; cb(); return; }
-    if (pendingNo) { pendingNo = false; return; }
     if (!modal.classList.contains("hidden")) modal.classList.add("hidden");
     if (selectMode) exitSelect();
     else if (itemId) closeItem();
