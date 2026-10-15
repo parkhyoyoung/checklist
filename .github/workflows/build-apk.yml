@@ -69,6 +69,14 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
+      - name: 서명 확인 (어떤 키로 서명됐는지 지문을 기록해요)
+        id: sig
+        run: |
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          SHA=$("$APKSIGNER" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep "SHA-256" | head -1 | awk '{print $NF}')
+          echo "서명 지문(SHA-256): $SHA"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
       - name: 버전 확인
         id: ver
         run: |
@@ -86,3 +94,5 @@ jobs:
           tag_name: v${{ steps.ver.outputs.v }}
           name: 체크리스트 v${{ steps.ver.outputs.v }}
           files: checklist-v${{ steps.ver.outputs.v }}.apk
+          overwrite_files: true
+          body: "서명 지문(SHA-256): ${{ steps.sig.outputs.sha }}"
