@@ -39,6 +39,12 @@ jobs:
           sed -i 's/android:launchMode="singleTask"/android:launchMode="singleTop"/' android/app/src/main/AndroidManifest.xml
           grep -n launchMode android/app/src/main/AndroidManifest.xml
 
+      - name: 앱 버전 번호 맞추기 (업데이트 설치가 되려면 매번 숫자가 커져야 해요)
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"$VER\"/" android/app/build.gradle
+          grep -n "versionCode\|versionName" android/app/build.gradle
+
       - name: 앱 아이콘 적용 (images/app-icon.png 가 있을 때만)
         if: hashFiles('images/app-icon.png') != ''
         run: |
