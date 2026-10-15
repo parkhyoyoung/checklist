@@ -1,4 +1,4 @@
-name: APK 만들기 
+name: APK 만들기
 
 on:
   workflow_dispatch:   # Actions 탭에서 "Run workflow" 버튼으로 실행
@@ -42,7 +42,9 @@ jobs:
       - name: 앱 버전 번호 맞추기 (업데이트 설치가 되려면 매번 숫자가 커져야 해요)
         run: |
           VER=$(node -p "require('./package.json').version")
-          sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/; s/versionName \"1.0\"/versionName \"$VER\"/" android/app/build.gradle
+          # 설치용 번호 = 버전(1.3.10 → 10310) × 1000 + 빌드 횟수. 버전을 올리면 항상 더 큰 번호가 돼요.
+          CODE=$(node -p "const [a,b,c]=require('./package.json').version.split('.').map(Number); ((a*10000+b*100+c)*1000 + (${{ github.run_number }} % 1000))")
+          sed -i "s/versionCode 1/versionCode $CODE/; s/versionName \"1.0\"/versionName \"$VER\"/" android/app/build.gradle
           grep -n "versionCode\|versionName" android/app/build.gradle
 
       - name: 앱 아이콘 적용 (images/app-icon.png 가 있을 때만)
