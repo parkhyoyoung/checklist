@@ -13,12 +13,13 @@
   }
   const KEY = "checklist-app-v1";
   const THEME_KEY = "checklist-theme";
-  const THEME_COLORS = { "check-sky":"#ffffff", "check-pink":"#ffffff", "check-red":"#161616", sea:"#0b1d3a", white:"#f6f6f6", black:"#0d0d0d", blue:"#cfe3fb", cobalt:"#0261ef", pink:"#ffb3b0", orange:"#ffa462", green:"#dcf1c4", custom:"#2b2b2b" };
+  const THEME_COLORS = { "check-sky":"#ffffff", "check-pink":"#ffffff", "check-red":"#161616", sea:"#0b1d3a", white:"#f6f6f6", black:"#0d0d0d", blue:"#cfe3fb", cobalt:"#0261ef", pink:"#ffb3b0", orange:"#ffa462", green:"#dcff7d", forest:"#0e271e", yellow:"#ffe58a", sakura:"#fff0f5", snow:"#16284d", daisy:"#d3edc0", grid:"#fbfbf6", lined:"#fffdf2", lavender:"#e4d9f7", paw:"#fff4f4", clover:"#eaf7e0", custom:"#2b2b2b" };
   let data = { lists: [] };   // { id, name, items:[{ id, text, done, due, memo }] }
   let currentId = null;       // 열린 리스트
   let itemId = null;          // 열린 항목
   let selectMode = false;     // 선택 삭제 모드
   const selected = new Set(); // 선택된 항목 id
+  let notifTimer = null;      // 알림 다시 등록 예약
   const VIEWALL_KEY = "checklist-view-all";
   let viewAll = false;        // 홈에서 모든 리스트의 항목을 펼쳐 보기
   try { viewAll = localStorage.getItem(VIEWALL_KEY) === "1"; } catch (e) {}
@@ -27,7 +28,7 @@
     try { const raw = localStorage.getItem(KEY); if (raw) data = JSON.parse(raw); }
     catch (e) { data = { lists: [] }; }
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} queueNotifs(); }
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const $ = (id) => document.getElementById(id);
   const current = () => data.lists.find(l => l.id === currentId);
@@ -63,7 +64,7 @@
     root.classList.add("has-checkimg");
   }
 
-  // 아이콘 (images/back, close, add, select .svg) — 있는 것만 그림으로 바꿔요.
+  // 아이콘 (images/back, close, add, select, drag .svg) — 있는 것만 그림으로 바꿔요.
   // 뒤로가기·선택은 글자색(ink), 닫기·사진추가는 보조 글자색(muted), 닫기를 누르는 순간엔 danger 색이에요.
   function applyIcons() {
     const ic = window.ICON_SVG || {};
@@ -71,8 +72,8 @@
     const cs = getComputedStyle(root);
     const col = (v, d) => cs.getPropertyValue(v).trim() || d;
     const toUrl = (s, c) => 'url("data:image/svg+xml,' + encodeURIComponent(s.replace(/currentColor/g, c)) + '")';
-    const colors = { back: col("--ink", "#000"), select: col("--ink", "#000"), close: col("--muted", "#666"), add: col("--muted", "#666") };
-    for (const name of ["back", "close", "add", "select"]) {
+    const colors = { back: col("--ink", "#000"), select: col("--ink", "#000"), close: col("--muted", "#666"), add: col("--muted", "#666"), drag: col("--muted", "#666") };
+    for (const name of ["back", "close", "add", "select", "drag"]) {
       const on = !!ic[name];
       root.classList.toggle("has-ic-" + name, on);
       if (on) root.style.setProperty("--ic-" + name, toUrl(ic[name], colors[name]));
@@ -150,6 +151,7 @@
     $("selBar").classList.toggle("hidden", !selectMode);
     $("selDelete").textContent = `선택 항목 삭제 (${selected.size})`;
     $("selDelete").disabled = !selected.size;
+    $("selMove").disabled = !selected.size;
     const box = $("items");
     if (!l.items.length) {
       box.innerHTML = '<div class="empty">할 일을 추가해보세요.</div>';
@@ -158,6 +160,7 @@
     const row = (i) => {
       const chips = [];
       if (i.due) { const t = dueText(i.due); chips.push(`<span class="chip ${i.done ? "" : t.cls}">${t.text}</span>`); }
+      if (i.daily) chips.push('<span class="chip daily">매일</span>');
       const sel = selected.has(i.id);
       const lead = selectMode
         ? `<div class="selwrap"><span class="selmark">${sel ? "✓" : ""}</span></div>`
@@ -184,6 +187,7 @@
     $("vText").value = it.text;
     $("vDue").value = it.due || "";
     $("vMemo").value = it.memo || "";
+    $("vDaily").setAttribute("aria-checked", !!it.daily);
   }
 
   function hideAll() {
@@ -279,11 +283,13 @@
     else if (open) showList(open.dataset.open, true);
   };
   $("back").onclick = () => history.back();   // 선택 모드에서는 "취소"
-  $("detailTitle").onclick = () => {          // 제목을 누르면 이름 변경
+  $("detailTitle").onclick = () => {          // 제목을 한 번 누르면 그 자리에서 이름 변경
     if (selectMode) return;
     const l = current();
-    const name = prompt("리스트 이름 변경", l.name);
-    if (name && name.trim()) { l.name = name.trim(); save(); renderDetail(); }
+    inlineEdit($("detailTitle"), "detailTitleInput", v => {
+      if (v && v !== l.name) { l.name = v; save(); }
+      renderDetail();
+    });
   };
 
   /* ---------- 선택 삭제 ---------- */
@@ -312,6 +318,55 @@
       history.back();      // 선택 모드 종료
     });
   };
+
+  /* ---------- 다른 목록으로 이동 ---------- */
+  const moveOv = $("moveOv");
+  let movePending = false;
+  function openMove() {
+    const l = current();
+    const others = data.lists.filter(x => x.id !== l.id);
+    $("moveTitle").textContent = `${selected.size}개 항목을 어디로 옮길까요?`;
+    $("moveList").innerHTML = others.length
+      ? others.map(x => {
+          const done = x.items.filter(i => i.done).length;
+          const pct = x.items.length ? Math.round(done / x.items.length * 100) : 0;
+          return `<button class="move-card" data-move-to="${x.id}">
+            <span class="grow"><span class="name">${esc(x.name)}</span><span class="bar" style="display:block"><i style="width:${pct}%"></i></span></span>
+            <span class="count">${done}/${x.items.length}</span><span class="chev">›</span></button>`;
+        }).join("")
+      : '<p class="move-empty">옮길 다른 목록이 없어요.<br>먼저 새 체크리스트를 만들어 주세요.</p>';
+    moveOv.classList.remove("hidden");
+    history.pushState({ v: "move" }, "");               // 안드로이드 뒤로가기 = 취소
+  }
+  function closeMove() {                                 // 취소 버튼 / 바깥 누르기
+    if (moveOv.classList.contains("hidden")) return;
+    moveOv.classList.add("hidden");
+    movePending = true;
+    history.back();
+  }
+  $("selMove").onclick = () => { if (selected.size) openMove(); };
+  $("moveCancel").onclick = closeMove;
+  moveOv.addEventListener("click", e => { if (e.target === moveOv) closeMove(); });
+  $("moveList").onclick = e => {
+    const b = e.target.closest("[data-move-to]");
+    if (!b) return;
+    const from = current(), to = data.lists.find(x => x.id === b.dataset.moveTo);
+    if (!from || !to) return;
+    const moving = from.items.filter(i => selected.has(i.id));
+    from.items = from.items.filter(i => !selected.has(i.id));
+    to.items.push(...moving);                            // 완료 여부·마감일·메모는 그대로 가져가요
+    save();
+    moveOv.classList.add("hidden");
+    history.go(-2);                                      // 이동 팝업 + 선택 모드를 함께 닫아요
+    showToast(`${moving.length}개 항목을 "${to.name}" 목록으로 옮겼어요`);
+  };
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = $("toast");
+    t.textContent = msg; t.classList.remove("hidden");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.add("hidden"), 2600);
+  }
 
   /* ---------- 동작: 항목 ---------- */
   function addItem() {
@@ -359,8 +414,15 @@
   $("backItem").onclick = () => history.back();
   $("vDone").onchange = e => { const it = currentItem(); it.done = e.target.checked; save(); };
   $("vText").oninput = e => { const it = currentItem(); it.text = e.target.value; save(); };
-  $("vDue").onchange = e => { const it = currentItem(); it.due = e.target.value || ""; save(); };
+  $("vDue").onchange = e => { const it = currentItem(); it.due = e.target.value || ""; save(); if (it.due) askNotifPermission(); };
   $("vDueClear").onclick = () => { const it = currentItem(); it.due = ""; $("vDue").value = ""; save(); };
+  $("vDaily").onclick = () => {
+    const it = currentItem();
+    it.daily = !it.daily;
+    $("vDaily").setAttribute("aria-checked", it.daily);
+    save();
+    if (it.daily) askNotifPermission();
+  };
   $("vMemo").oninput = e => { const it = currentItem(); it.memo = e.target.value; save(); };
   $("vDelete").onclick = () => {
     askConfirm("이 항목을 삭제할까요?", () => {
@@ -371,41 +433,40 @@
     });
   };
 
-  /* ---------- 앱 제목 수정 (더블클릭 / 더블탭) ---------- */
+  /* ---------- 앱 제목 수정 (한 번 누르면 바로 수정) ---------- */
   const TITLE_KEY = "checklist-app-title";
   const DEFAULT_TITLE = "내 체크리스트";
   const titleEl = $("appTitle");
   try { titleEl.textContent = localStorage.getItem(TITLE_KEY) || DEFAULT_TITLE; } catch (e) {}
 
-  function editTitle() {
-    if (titleEl.classList.contains("hidden")) return;
+  // 제목 자리에서 바로 고치는 입력칸 (앱 제목, 체크리스트 제목 공통)
+  function inlineEdit(el, id, onSave) {
+    if (el.classList.contains("hidden")) return;
     const input = document.createElement("input");
-    input.type = "text"; input.id = "appTitleInput"; input.maxLength = 30;
-    input.value = titleEl.textContent;
-    input.setAttribute("aria-label", "체크리스트 제목");
-    titleEl.classList.add("hidden");
-    titleEl.after(input);
+    input.type = "text"; input.id = id; input.maxLength = 30;
+    input.value = el.textContent;
+    input.setAttribute("aria-label", "제목 수정");
+    el.classList.add("hidden");
+    el.after(input);
     input.focus(); input.select();
     let done = false;
     const finish = (ok) => {
       if (done) return; done = true;
-      if (ok) {
-        const v = input.value.trim() || DEFAULT_TITLE;
-        titleEl.textContent = v;
-        try { localStorage.setItem(TITLE_KEY, v); } catch (e) {}
-      }
-      input.remove(); titleEl.classList.remove("hidden");
+      const v = input.value.trim();
+      input.remove(); el.classList.remove("hidden");
+      if (ok) onSave(v);
     };
     input.onkeydown = e => { if (e.key === "Enter") finish(true); else if (e.key === "Escape") finish(false); };
     input.onblur = () => finish(true);
   }
-  titleEl.ondblclick = editTitle;
-  let lastTap = 0;                                   // 폰에서 두 번 연속 탭 감지
-  titleEl.addEventListener("touchend", e => {
-    const now = Date.now();
-    if (now - lastTap < 350) { e.preventDefault(); lastTap = 0; editTitle(); }
-    else lastTap = now;
-  });
+  function editTitle() {
+    inlineEdit(titleEl, "appTitleInput", v => {
+      v = v || DEFAULT_TITLE;
+      titleEl.textContent = v;
+      try { localStorage.setItem(TITLE_KEY, v); } catch (e) {}
+    });
+  }
+  titleEl.onclick = editTitle;                       // 한 번 누르면 바로 이름 수정
 
   /* ---------- 테마 버튼 아이콘 (images/icon-theme.png 가 있으면 🎨 대신 사용) ---------- */
   (function () {
@@ -691,6 +752,10 @@
     if (!confirmOv.classList.contains("hidden")) { confirmOv.classList.add("hidden"); confirmCb = null; return; }  // 뒤로가기 = 아니오
     if (pendingYes) { const cb = pendingYes; pendingYes = null; cb(); return; }
     if (pendingNo) { pendingNo = false; return; }
+    if (guidePending) { guidePending = false; showNotice(); return; }                                   // 가이드를 버튼으로 닫은 경우 → 업데이트 안내로
+    if (!guideOv.classList.contains("hidden")) { guideOv.classList.add("hidden"); showNotice(); return; }   // 뒤로가기 = 가이드 닫기
+    if (movePending) { movePending = false; return; }
+    if (!moveOv.classList.contains("hidden")) { moveOv.classList.add("hidden"); return; }                // 뒤로가기 = 이동 취소
     if (noticePending) { noticePending = false; return; }
     if (!noticeOv.classList.contains("hidden")) { hideNoticeFlag(); noticeOv.classList.add("hidden"); return; }   // 뒤로가기 = 닫기
     if (cropPending) { cropPending = false; return; }                                                  // 자르기 창을 버튼으로 닫은 경우
@@ -703,7 +768,7 @@
 
   /* ---------- 업데이트 안내 팝업 ---------- */
   // 새 안내를 보여주고 싶을 때는 NOTICE_ID 를 새 값(날짜 등)으로 바꾸세요. "다시 보지 않기"를 했던 사람에게도 한 번 더 보여요.
-  const NOTICE_ID = "2026-10-15", NOTICE_KEY = "checklist-notice-hide";
+  const NOTICE_ID = "2026-10-17", NOTICE_KEY = "checklist-notice-hide";
   const noticeOv = $("noticeOv");
   let noticePending = false;
   function hideNoticeFlag() {
@@ -717,14 +782,63 @@
     history.back();
   }
   $("noticeClose").onclick = closeNotice;
-  (function showNotice() {
+  function showNotice() {
     let seen = null;
     try { seen = localStorage.getItem(NOTICE_KEY); } catch (e) {}
     if (seen === NOTICE_ID) return;
     $("noticeHide").checked = false;
     noticeOv.classList.remove("hidden");
     history.pushState({ v: "notice" }, "");            // 안드로이드 뒤로가기 = 닫기
+  }
+
+  /* ---------- 사용 가이드 ---------- */
+  // 처음 실행할 때 한 번만 자동으로 열리고, 그 뒤에는 홈의 ? 버튼으로 열어요.
+  // 이미지: images/guide/guide-1.webp ~ guide-N.webp (장수를 바꾸면 GUIDE_COUNT 도 바꿔요)
+  const GUIDE_KEY = "checklist-guide-seen", GUIDE_COUNT = 12;
+  const guideOv = $("guideOv");
+  let guideIdx = 0, guidePending = false;
+  const guideSrc = (i) => `images/guide/guide-${i + 1}.webp`;
+  function setGuide(i) {
+    guideIdx = Math.max(0, Math.min(GUIDE_COUNT - 1, i));
+    $("guideImg").src = guideSrc(guideIdx);
+    $("guideDots").innerHTML = Array.from({ length: GUIDE_COUNT }, (_, k) => `<button class="dot${k === guideIdx ? " on" : ""}" data-i="${k}" aria-label="${k + 1}번째 안내"></button>`).join("");
+    $("guideCount").textContent = `${guideIdx + 1} / ${GUIDE_COUNT}`;     // 몇 번째 장인지
+    const last = guideIdx === GUIDE_COUNT - 1;
+    $("guideNext").textContent = last ? "닫기" : "다음";
+    $("guideSkip").classList.toggle("hidden", last);      // 마지막 장에서는 건너뛰기 대신 닫기만
+  }
+  function openGuide() {
+    setGuide(0);
+    guideOv.classList.remove("hidden");
+    history.pushState({ v: "guide" }, "");              // 안드로이드 뒤로가기 = 닫기
+    for (let k = 1; k < GUIDE_COUNT; k++) { const im = new Image(); im.src = guideSrc(k); }   // 미리 불러두기
+  }
+  function closeGuide() {
+    if (guideOv.classList.contains("hidden")) return;
+    guideOv.classList.add("hidden");
+    guidePending = true;
+    history.back();
+  }
+  $("guideNext").onclick = () => { if (guideIdx < GUIDE_COUNT - 1) setGuide(guideIdx + 1); else closeGuide(); };
+  $("guideSkip").onclick = closeGuide;
+  $("guideDots").onclick = e => { const d = e.target.closest("[data-i]"); if (d) setGuide(+d.dataset.i); };   // 점을 누르면 그 장으로
+  $("helpBtn").onclick = openGuide;
+  (function () {                                         // 옆으로 밀어서 넘기기
+    let x0 = null;
+    guideOv.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+    guideOv.addEventListener("touchend", e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (dx < -50) setGuide(guideIdx + 1); else if (dx > 50) setGuide(guideIdx - 1);
+    }, { passive: true });
   })();
+  function firstRun() {
+    let seen = null;
+    try { seen = localStorage.getItem(GUIDE_KEY); } catch (e) {}
+    if (seen) return showNotice();
+    try { localStorage.setItem(GUIDE_KEY, "1"); } catch (e) {}
+    openGuide();                                          // 가이드가 닫히면 업데이트 안내가 이어서 떠요
+  }
 
   function closeCropByBack() {
     cropOv.classList.add("hidden");
@@ -736,6 +850,8 @@
   const CapApp = getPlugin("App");
   if (CapApp && CapApp.addListener) {
     CapApp.addListener("backButton", () => {
+      if (!guideOv.classList.contains("hidden")) return closeGuide();
+      if (!moveOv.classList.contains("hidden")) return closeMove();
       if (!noticeOv.classList.contains("hidden")) return closeNotice();
       if (!cropOv.classList.contains("hidden")) return closeCrop();
       if (confirmOv.classList.contains("hidden") && !modal.classList.contains("hidden")) { modal.classList.add("hidden"); return; }   // 배경 팝업 닫기
@@ -771,11 +887,93 @@
     } catch (e) { /* 인터넷이 없거나 확인할 수 없으면 조용히 넘어가요 */ }
   }
 
+  /* ---------- 매일 반복 (한국 시간 00시에 완료 표시 해제) ---------- */
+  const kstDate = (ms = Date.now()) => new Date(ms + 9 * 3600e3).toISOString().slice(0, 10);   // 한국 날짜 YYYY-MM-DD
+  function applyDailyReset() {
+    const today = kstDate();
+    if (data.dailyDate && data.dailyDate >= today) return false;
+    let changed = false;
+    if (data.dailyDate) {                                // 처음 실행(기록 없음)일 땐 풀지 않고 오늘 날짜만 기록
+      data.lists.forEach(l => l.items.forEach(i => { if (i.daily && i.done) { i.done = false; changed = true; } }));
+    }
+    data.dailyDate = today;
+    save();
+    return changed;
+  }
+  function refreshView() {
+    if (!$("itemView").classList.contains("hidden")) fillItemView();
+    else if (!$("detail").classList.contains("hidden")) renderDetail();
+    else renderHome();
+  }
+  function checkDay() { if (applyDailyReset()) refreshView(); }
+
+  /* ---------- 알림 (마감일 · 초기화 30분 전) ---------- */
+  // 앱이 꺼져 있어도 울리도록, 예정된 알림을 폰에 미리 등록해 둬요. 데이터가 바뀔 때마다 다시 등록해요.
+  const LN = getPlugin("LocalNotifications");
+  const nid = (str) => { let h = 2166136261; for (let k = 0; k < str.length; k++) { h ^= str.charCodeAt(k); h = Math.imul(h, 16777619); } return (h >>> 0) % 2000000000; };
+  function buildNotifs() {
+    const now = Date.now(), out = [];
+    const [ty, tm, td] = kstDate().split("-").map(Number);
+    for (const l of data.lists) for (const i of l.items) {
+      const name = (i.text || "").trim() || "(제목 없음)";
+      if (i.due && !i.done) {                            // 마감일 당일 오전 9시 (마감까지 약 15시간)
+        const [y, m, d] = i.due.split("-").map(Number);
+        const at = new Date(y, m - 1, d, 9, 0, 0), end = new Date(y, m - 1, d + 1, 0, 0, 0);
+        if (at.getTime() > now + 5000) {
+          const hrs = Math.max(1, Math.round((end - at) / 3600000));
+          out.push({ id: nid(i.id + ":due"), at, title: "마감일 알림", body: `[${name}] 일정 마감일까지 ${hrs}시간 남았대요!` });
+        }
+      }
+      if (i.daily) {                                     // 한국 시간 23:30 (초기화 30분 전), 앞으로 7일치
+        for (let k = 0; k < 7; k++) {
+          if (k === 0 && i.done) continue;               // 오늘 이미 했으면 오늘 알림은 없어요 (내일부터는 초기화되니까 울려요)
+          const at = new Date(Date.UTC(ty, tm - 1, td + k, 14, 30, 0));
+          if (at.getTime() <= now + 5000) continue;
+          out.push({ id: nid(`${i.id}:d${k}`), at, title: "초기화 임박", body: `[${name}] 초기화까지 30분 남았대요!` });
+        }
+      }
+    }
+    out.sort((a, b) => a.at - b.at);
+    return out.slice(0, 200).map(n => ({ id: n.id, title: n.title, body: n.body, smallIcon: "ic_stat_notify", schedule: { at: n.at, allowWhileIdle: true } }));
+  }
+  async function doSchedule(ask) {
+    if (!LN) return true;                                // 안드로이드 앱이 아니면(브라우저) 알림 없음
+    const list = buildNotifs();
+    let granted = false;
+    try {
+      let st = await LN.checkPermissions();
+      if (st.display !== "granted" && ask && list.length) st = await LN.requestPermissions();
+      granted = st.display === "granted";
+    } catch (e) { return false; }
+    try {
+      const pend = await LN.getPending();
+      if (pend.notifications && pend.notifications.length) await LN.cancel({ notifications: pend.notifications.map(n => ({ id: n.id })) });
+      if (granted && list.length) await LN.schedule({ notifications: list });
+    } catch (e) { /* 알림 등록에 실패해도 앱은 그대로 써요 */ }
+    return granted || !list.length;
+  }
+  let notifChain = Promise.resolve();
+  function runNotifs(ask) { const r = notifChain.then(() => doSchedule(ask)); notifChain = r.catch(() => {}); return r; }
+  function queueNotifs() { if (!LN) return; clearTimeout(notifTimer); notifTimer = setTimeout(() => runNotifs(false), 800); }
+  let permWarned = false;
+  async function askNotifPermission() {                  // 마감일/매일 반복을 처음 켤 때 알림 권한을 물어봐요
+    const ok = await runNotifs(true).catch(() => false);
+    if (!ok && LN && !permWarned) {
+      permWarned = true;
+      askConfirm("알림이 꺼져 있어서 알려드릴 수 없어요.\n폰 설정 > 앱 > 이거해야대 > 알림을 켜주세요.", () => {}, "확인", "닫기", true);
+    }
+  }
+
   load();
+  applyDailyReset();
   let saved = "sea";
   try { saved = localStorage.getItem(THEME_KEY) || "sea"; } catch (e) {}
   applyTheme(saved);
   setTimeout(checkUpdate, 1500);
+  setInterval(checkDay, 30000);                          // 자정이 지나면 바로 초기화
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { checkDay(); queueNotifs(); } });
+  if (CapApp && CapApp.addListener) CapApp.addListener("resume", () => { checkDay(); queueNotifs(); });
+  queueNotifs();
   // 저장해 둔 내 사진이 있으면 불러오고, 없는데 내 사진 테마였다면 기본 테마로 돌아가요
   bgGet().then(blob => {
     if (blob) showBg(blob);
@@ -784,3 +982,5 @@
     if (document.documentElement.dataset.theme === "custom") applyTheme("check-sky");
   });
   renderHome();
+  if (window.APP_VERSION && $("appVer")) $("appVer").textContent = "v" + window.APP_VERSION;
+  firstRun();

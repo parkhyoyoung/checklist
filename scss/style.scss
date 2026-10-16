@@ -1,12 +1,14 @@
 // 이 파일이 시작점입니다. 실제 스타일은 아래 파일들에 나눠져 있어요.
 //   _variables.scss  폰트, 둥근 모서리, 장식 색 등 공통 값
 //   _themes.scss     카드 색상 + 배경 테마 (테마는 배경만 바꿔요)
+//   _patterns.scss   무늬 배경 테마 (벚꽃, 눈송이, 데이지, 모눈종이, 줄노트)
 //   _base.scss       폰트, 기본 레이아웃, 버튼, 입력창, 체크박스
 //   _home.scss       제목 박스, 첫 화면 체크리스트 카드
 //   _items.scss      체크리스트 안 (줄 노트, 할 일 항목, 선택 삭제)
 //   _detail.scss     할 일 상세 페이지
 //   _modal.scss      테마 선택 팝업
 @use "themes";
+@use "patterns";
 @use "base" as *;
 @use "home" as *;
 @use "items" as *;

@@ -189,9 +189,13 @@ textarea {
     background: var(--cb-off) center / contain no-repeat;
   }
 
+  // 선택된 항목: 완료 그림(완) 대신, 빈 네모 위에 ✓ 를 얹어서 완료 체크와 구분해요
   .item.selected .selmark {
     border: 0;
-    background: var(--cb-on) center / contain no-repeat;
+    background: var(--cb-off) center / contain no-repeat;
+    color: var(--accent);
+    font-size: 20px;
+    line-height: 1;
   }
 }
 
@@ -260,6 +264,11 @@ textarea:focus-visible,
     background: linear-gradient(currentColor, currentColor) center / 100% 2.5px no-repeat;
     border-radius: 2px;
   }
+}
+
+.has-ic-drag .drag {   // images/drag.svg 가 있으면 ≡ 대신 위아래 화살표 그림
+  background: var(--ic-drag) center / 20px 20px no-repeat;
+  &::before { content: none; }
 }
 
 .dragging {

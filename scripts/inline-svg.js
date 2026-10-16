@@ -19,7 +19,7 @@ const ok = off && on;
 
 // 아이콘은 하나씩 따로 적용돼요 (있는 것만 그림으로, 없으면 기본 글자)
 const icons = {};
-for (const name of ["back", "close", "add", "select"]) {
+for (const name of ["back", "close", "add", "select", "drag"]) {
   const svg = read(name + ".svg");
   if (svg) icons[name] = svg;
 }

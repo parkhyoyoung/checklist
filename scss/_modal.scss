@@ -56,10 +56,16 @@
 
   .swatch { flex: 1 1 0; min-width: 0; }
 
-  // 단색: 4개씩 두 줄
+  // 단색: 5개씩 두 줄
   &.solid {
     flex-wrap: wrap;
-    .swatch { flex: 0 0 calc((100% - 18px) / 4); }
+    .swatch { flex: 0 0 calc((100% - 24px) / 5); }
+  }
+
+  // 무늬: 5개 한 줄
+  &.pattern {
+    flex-wrap: wrap;
+    .swatch { flex: 0 0 calc((100% - 24px) / 5); }
   }
 }
 
@@ -67,14 +73,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 8px;
+  gap: 4px;
+  padding: 8px 4px;
   border: $edge;
   border-radius: $radius-card;
 
   i {
-    width: 44px;
-    height: 44px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     border: 1px solid var(--line);
     display: block;
@@ -87,15 +93,15 @@
     justify-content: center;
     border: 2px dashed var(--line);
     color: var(--muted);
-    font-size: 22px;
+    font-size: 18px;
     background-size: cover;
     background-position: center;
   }
 
   // 사진 첨부 아이콘(images/add.svg)이 있으면, 사진을 고르기 전에는 점선 동그라미 안에 그 그림을 넣어 보여줘요
   .has-ic-add & i.custom-ico:not(.has-photo) {
-    width: 52px;
-    height: 52px;
+    width: 40px;
+    height: 40px;
     font-size: 0;
     background: var(--ic-add) center / 62% no-repeat;
   }
@@ -124,7 +130,7 @@
   .confirm-btns { display: flex; gap: 10px; .btn { flex: 1; width: auto; margin-top: 0; height: 38px; font-size: 13px; } }
 }
 
-.crop-wrap { display: flex; justify-content: center; }
+.crop-wrap { display: flex; justify-content: center; margin: 18px 0 8px; }
 
 .crop-stage {
   position: relative;
@@ -132,6 +138,7 @@
   line-height: 0;
   user-select: none;
   -webkit-user-select: none;
+  clip-path: inset(-16px);   // 어두운 영역이 사진 밖(버튼들)까지 번지지 않게 자르되 모서리 손잡이는 보이게
 
   img {
     display: block;
@@ -166,10 +173,11 @@
 .crop-ratios {
   display: flex;
   gap: 6px;
-  margin: 14px 0 0;
+  margin: 22px 0 0;
   .btn { flex: 1; width: auto; margin-top: 0; height: 38px; padding: 0 4px; font-size: 12px; &.on { background: var(--btn); color: var(--btn-ink); border-color: transparent; } }
 }
 .crop-modal .confirm-btns { margin-top: 12px; }
+.crop-modal .crop-ratios, .crop-modal .confirm-btns { position: relative; z-index: 2; }   // 버튼은 항상 맨 위에서 눌리도록
 
 // 업데이트 안내 팝업
 .overlay.notice {
@@ -178,7 +186,11 @@
   h2 { text-align: center; font-size: 15px; }
 }
 .notice-body {
-  p { margin: 0 0 14px; line-height: 1.6; word-break: keep-all; font-size: 13px; }
+  max-height: 58dvh; overflow-y: auto; overscroll-behavior: contain;
+  p { margin: 0 0 16px; line-height: 1.6; word-break: keep-all; font-size: 13px; }
+  p b { display: block; font-weight: 700; }
+  p span { display: block; margin-top: 8px; }   // 제목과 설명 사이를 한 줄 정도 띄워요
+  p.etc { margin-top: 4px; color: var(--muted); }
 }
 .notice-check {
   display: flex;
@@ -192,4 +204,193 @@
   span { color: var(--muted); opacity: .7; transition: color .15s, opacity .15s; }
   input:checked + span { color: var(--ink); opacity: 1; font-weight: 700; }
   input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+}
+
+// 다른 목록으로 이동 (아래에서 올라오는 시트)
+.overlay.move {
+  z-index: 12;
+  padding: 0;
+  align-items: flex-end;
+  justify-content: center;
+
+  .sheet {
+    width: 100%;
+    max-width: 480px;
+    max-height: 78%;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    color: var(--ink);
+    border: $edge;
+    border-bottom: 0;
+    border-radius: 28px 28px 0 0;
+    padding: 10px 16px max(20px, env(safe-area-inset-bottom));
+    animation: sheet-up .22s ease-out;
+  }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 14px; flex: none; }
+  h2 { text-align: center; font-size: 16px; margin: 0 0 4px; }
+  .sheet-sub { text-align: center; color: var(--muted); font-size: 12px; margin: 0 0 14px; }
+  .move-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-bottom: 8px;
+  }
+  .move-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: var(--field);
+    border: $edge;
+    border-radius: $radius-card;
+    padding: 14px;
+    margin-bottom: 10px;
+    text-align: left;
+
+    .name { font-weight: 600; word-break: break-all; }
+    .count { color: var(--muted); font-size: 12px; }
+    .chev { color: var(--muted); font-size: 24px; line-height: 1; padding: 0 2px; }
+    &:active { background: var(--tint); }
+  }
+  .move-empty { text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; padding: 12px 0 18px; margin: 0; }
+  .sheet > .btn { width: 100%; height: 42px; margin-top: 0; font-size: 14px; flex: none; }
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+// 사용 가이드 — 이미지는 위아래 여백을 두고 정가운데, 점(페이지)은 이미지 바로 아래, 버튼은 맨 아래
+.overlay.guide {
+  z-index: 19;
+  padding: 0;
+  background:
+    radial-gradient(120% 45% at 80% 6%, #25508f 0%, transparent 60%),
+    linear-gradient(180deg, #0b1d3a, #102a52 60%, #0b1d3a);   // 가이드 이미지 바탕과 같은 색
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  touch-action: pan-y;
+
+  // 가운데 영역: 화면 전체를 쓰고, 이미지는 화면 정가운데에 와요 (이미지 안의 폰 화면이 화면 중앙)
+  .guide-stage {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+    pointer-events: none;
+  }
+  .guide-stage > * { pointer-events: auto; }
+  .guide-frame {
+    position: relative;
+    display: flex;
+    max-width: 100%;
+  }
+  .guide-frame > img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px);
+    object-fit: contain;
+    -webkit-mask-image: linear-gradient(transparent, #000 4%, #000 90%, transparent);
+    mask-image: linear-gradient(transparent, #000 4%, #000 90%, transparent);   // 가장자리를 바탕색으로 자연스럽게
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  // 점(페이지) — 이미지 안의 폰 화면 바로 아래에 붙여요
+  .guide-dots {
+    position: absolute;
+    left: 0; right: 0;
+    top: 79%;
+  }
+
+  // 맨 위 한 줄 — 왼쪽에 몇 번째 장인지, 오른쪽에 건너뛰기 (글자만)
+  .guide-count {
+    position: absolute;
+    top: max(18px, env(safe-area-inset-top));
+    left: 24px;
+    padding: 10px 0;
+    color: #8fc2ff;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    z-index: 2;
+  }
+  .guide-skip {
+    position: absolute;
+    top: max(18px, env(safe-area-inset-top));
+    right: 12px;
+    padding: 10px 12px;
+    background: none;
+    border: 0;
+    color: #7fa3d4;
+    font-size: 14px;
+    z-index: 2;
+    &.hidden { display: none; }
+  }
+
+  // 버튼은 앱 테마가 아니라 가이드 이미지 색(남색 바탕 + 하늘색)에 맞춰요
+  .guide-foot {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 0 24px max(28px, env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: center;
+  }
+  .g-btn {
+    width: 100%;
+    max-width: 420px;
+    height: 52px;
+    border-radius: 999px;
+    border: 0;
+    background: #6cb4ff;
+    color: #06203f;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    &:active { filter: brightness(.9); }
+  }
+}
+.guide-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .dot {
+    width: 14px; height: 32px;       // 점은 작지만 누르는 영역은 위아래로 넉넉하게
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: 0; padding: 0;
+    transition: width .2s;
+    &::before {
+      content: "";
+      width: 5px; height: 5px; border-radius: 50%;
+      background: rgba(255, 255, 255, .28);
+      transition: width .2s, background .2s;
+    }
+    &.on { width: 24px; }
+    &.on::before { width: 16px; border-radius: 3px; background: #8fc2ff; }
+  }
+}
+
+// 잠깐 떴다 사라지는 안내
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%);
+  max-width: 86vw;
+  background: var(--surface);
+  color: var(--ink);
+  border: $edge;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 13px;
+  z-index: 30;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .25);
+  &.hidden { display: none; }
 }

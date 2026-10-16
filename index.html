@@ -14,7 +14,8 @@
   <section id="home">
     <div class="panel">
       <header>
-        <h1 id="appTitle" title="두 번 누르면 이름을 바꿀 수 있어요">내 체크리스트</h1>
+        <h1 id="appTitle" title="눌러서 이름을 바꿀 수 있어요">내 체크리스트</h1>
+        <button class="help-btn" id="helpBtn" aria-label="사용 가이드 보기">?</button>
       </header>
     </div>
     <div class="add-row">
@@ -27,6 +28,7 @@
       <button class="switch" id="viewAllToggle" role="switch" aria-checked="false" aria-labelledby="viewAllLabel"><i></i></button>
     </div>
     <div id="lists"></div>
+    <div class="app-ver" id="appVer"></div>
   </section>
 
   <!-- 2. 리스트 안 항목들 -->
@@ -46,7 +48,8 @@
     </div>
     <div id="items"></div>
     <div class="sel-bar hidden" id="selBar">
-      <button class="btn danger" id="selDelete" style="width:100%">선택 항목 삭제</button>
+      <button class="btn ghost" id="selMove">다른 목록으로 이동</button>
+      <button class="btn danger" id="selDelete">선택 항목 삭제</button>
     </div>
   </section>
 
@@ -71,6 +74,16 @@
       <div class="inline">
         <input type="date" class="field" id="vDue">
         <button class="btn ghost" id="vDueClear">지우기</button>
+      </div>
+      <p class="hint">마감일 당일 오전 9시에 알림이 와요.</p>
+    </div>
+    <div class="field-block">
+      <div class="switch-row">
+        <div class="sw-text">
+          <span class="sw-title">매일 반복</span>
+          <small>한국 시간 매일 00시에 완료 표시가 풀려요. 밤 11시 30분까지 못 했으면 알림이 와요.</small>
+        </div>
+        <button class="switch" id="vDaily" role="switch" aria-checked="false" aria-label="매일 반복"><i></i></button>
       </div>
     </div>
     <div class="field-block">
@@ -102,18 +115,28 @@
     <h3 class="group-title">단색</h3>
     <div class="swatch-row solid">
       <button class="swatch" data-theme-pick="white" aria-label="흰색" title="흰색"><i style="background:url(images/swatch-white.png) center/cover,#f6f6f6"></i></button>
-      <button class="swatch" data-theme-pick="black" aria-label="검은색" title="검은색"><i style="background:url(images/swatch-black.png) center/cover,#0d0d0d"></i></button>
-      <button class="swatch" data-theme-pick="blue" aria-label="파란색" title="파란색"><i style="background:url(images/swatch-blue.png) center/cover,#cfe3fb"></i></button>
-      <button class="swatch" data-theme-pick="cobalt" aria-label="코발트" title="코발트"><i style="background:url(images/swatch-cobalt.png) center/cover,#0261ef"></i></button>
       <button class="swatch" data-theme-pick="pink" aria-label="분홍색" title="분홍색"><i style="background:url(images/swatch-pink.png) center/cover,#ffb3b0"></i></button>
       <button class="swatch" data-theme-pick="orange" aria-label="주황색" title="주황색"><i style="background:url(images/swatch-orange.png) center/cover,#ffa462"></i></button>
-      <button class="swatch" data-theme-pick="green" aria-label="연두색" title="연두색"><i style="background:url(images/swatch-green.png) center/cover,#dcf1c4"></i></button>
+      <button class="swatch" data-theme-pick="yellow" aria-label="노란색" title="노란색"><i style="background:url(images/swatch-yellow.png) center/cover,#ffe58a"></i></button>
+      <button class="swatch" data-theme-pick="green" aria-label="연두색" title="연두색"><i style="background:#dcff7d"></i></button>
+      <button class="swatch" data-theme-pick="blue" aria-label="파란색" title="파란색"><i style="background:url(images/swatch-blue.png) center/cover,#cfe3fb"></i></button>
+      <button class="swatch" data-theme-pick="cobalt" aria-label="코발트" title="코발트"><i style="background:url(images/swatch-cobalt.png) center/cover,#0261ef"></i></button>
+      <button class="swatch" data-theme-pick="lavender" aria-label="라벤더" title="라벤더"><i style="background:#e4d9f7"></i></button>
+      <button class="swatch" data-theme-pick="forest" aria-label="딥그린" title="딥그린"><i style="background:#0e271e"></i></button>
+      <button class="swatch" data-theme-pick="black" aria-label="검은색" title="검은색"><i style="background:url(images/swatch-black.png) center/cover,#0d0d0d"></i></button>
     </div>
-    <h3 class="group-title">체크무늬</h3>
-    <div class="swatch-row check">
-      <button class="swatch" data-theme-pick="check-sky" aria-label="하늘 체크" title="하늘 체크"><i style="background:url(images/swatch-check-sky.png) center/cover,conic-gradient(#bfe0f7 25%,#ffffff 0 50%,#bfe0f7 0 75%,#ffffff 0) 0 0/20px 20px"></i></button>
+    <h3 class="group-title">무늬</h3>
+    <div class="swatch-row pattern">
+      <button class="swatch" data-theme-pick="grid" aria-label="모눈종이" title="모눈종이"><i class="sw-grid"></i></button>
+      <button class="swatch" data-theme-pick="lined" aria-label="줄노트" title="줄노트"><i class="sw-lined"></i></button>
+      <button class="swatch" data-theme-pick="paw" aria-label="발자국" title="발자국"><i class="sw-paw"></i></button>
+      <button class="swatch" data-theme-pick="sakura" aria-label="벚꽃" title="벚꽃"><i class="sw-sakura"></i></button>
       <button class="swatch" data-theme-pick="check-pink" aria-label="분홍 체크" title="분홍 체크"><i style="background:url(images/swatch-check-pink.png) center/cover,conic-gradient(#ffb3b0 25%,#ffffff 0 50%,#ffb3b0 0 75%,#ffffff 0) 0 0/20px 20px"></i></button>
+      <button class="swatch" data-theme-pick="daisy" aria-label="데이지" title="데이지"><i class="sw-daisy"></i></button>
+      <button class="swatch" data-theme-pick="clover" aria-label="클로버" title="클로버"><i class="sw-clover"></i></button>
+      <button class="swatch" data-theme-pick="check-sky" aria-label="하늘 체크" title="하늘 체크"><i style="background:url(images/swatch-check-sky.png) center/cover,conic-gradient(#bfe0f7 25%,#ffffff 0 50%,#bfe0f7 0 75%,#ffffff 0) 0 0/20px 20px"></i></button>
       <button class="swatch" data-theme-pick="check-red" aria-label="빨강 체크" title="빨강 체크"><i style="background:url(images/swatch-check-red.png) center/cover,conic-gradient(#b82040 25%,#161616 0 50%,#b82040 0 75%,#161616 0) 0 0/20px 20px"></i></button>
+      <button class="swatch" data-theme-pick="snow" aria-label="눈송이" title="눈송이"><i class="sw-snow"></i></button>
     </div>
     <h3 class="group-title">일러스트</h3>
     <div class="swatch-row art">
@@ -129,14 +152,45 @@
   </div>
 </div>
 
+<!-- 다른 목록으로 이동 (아래에서 올라오는 시트) -->
+<div class="overlay hidden move" id="moveOv">
+  <div class="sheet" role="dialog" aria-labelledby="moveTitle">
+    <div class="grab"></div>
+    <h2 id="moveTitle">어디로 옮길까요?</h2>
+    <p class="sheet-sub">옮길 목록을 눌러주세요</p>
+    <div class="move-list" id="moveList"></div>
+    <button class="btn ghost" id="moveCancel">취소</button>
+  </div>
+</div>
+
+<!-- 사용 가이드 (이미지는 images/guide/guide-1.webp ~ guide-12.webp) -->
+<div class="overlay hidden guide" id="guideOv" role="dialog" aria-label="사용 가이드">
+  <div class="guide-count" id="guideCount"></div>
+  <button class="guide-skip" id="guideSkip">건너뛰기</button>
+  <div class="guide-stage">
+    <div class="guide-frame">
+      <img id="guideImg" alt="" draggable="false">
+      <div class="guide-dots" id="guideDots"></div>
+    </div>
+  </div>
+  <div class="guide-foot">
+    <button class="g-btn" id="guideNext">다음</button>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast" role="status"></div>
+
 <!-- 업데이트 안내 -->
 <div class="overlay hidden notice" id="noticeOv">
   <div class="modal notice-modal">
     <h2>🫧 app 업데이트 안내 🫧</h2>
     <div class="notice-body">
-      <p>체크리스트 목록끼리의 순서 변경이 가능해졌어요!<br>상단에 고정기능도 추가되었으니 중요한 일정이 아래로 깔리지 않도록 관리가 가능해요😀</p>
-      <p>배경 이미지 변경 시 크롭이 가능하게 되었어요!<br>내가 원하는 부분으로 나만의 체크리스트를 만들어보세요!</p>
-      <p>메인화면에서 내 체크리스트 목록을 볼 수 있는 기능이 추가되었어요!<br>일일히 눌러보지 않아도 내 할일 목록들을 체크해보세요</p>
+      <p><b>1. 할 일을 다른 목록으로 옮길 수 있어요!</b><span>선택 모드에서 골라 [다른 목록으로 이동]을 눌러보세요.</span></p>
+      <p><b>2. 마감일 당일 오전 9시에 알림이 와요!</b><span>놓치는 일정 없이 챙겨보세요🔔</span></p>
+      <p><b>3. [매일 반복]을 켜면 한국 시간 매일 00시에 완료가 풀리고,</b><span>못 했으면 30분 전에 알려드려요!</span></p>
+      <p><b>4. 배경 테마가 늘었어요!</b><span>이제 단색 테마가 10개, 무늬 테마가 10개에요!</span></p>
+      <p><b>5. 앱 가이드가 추가되었어요!</b><span>사용 방법은 홈 오른쪽 위 ? 버튼에서 언제든 볼 수 있어요.</span></p>
+      <p class="etc">그 외 기타 시각적 편의를 위한 수정들이 추가되었습니다!</p>
     </div>
     <label class="chk notice-check"><input type="checkbox" id="noticeHide"><span>다시 보지 않기</span></label>
     <button class="btn" id="noticeClose">닫기</button>

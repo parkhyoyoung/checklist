@@ -41,6 +41,55 @@ $themes: (
     surface: rgba(19, 43, 79, .72), field: rgba(10, 28, 58, .7), line: rgba(160, 196, 245, .42), ink: #e3eeff, muted: #9db5d3,
     btn: #6eb0ec, btn-ink: #08172e, accent: #7db8f0, danger: #ff8fa0, tint: rgba(125, 184, 240, .16),
   ),
+  // 노란색 — 푸딩 같은 버터 옐로우 + 갈색 포인트 (글자, 버튼, 진행 바가 갈색)
+  "yellow": (
+    bg: #ffe58a,
+    surface: #fff8dc, field: #fffdf2, line: #d9b25f, ink: #4a2c14, muted: #8a6a45,
+    btn: #7b4a2a, btn-ink: #fff7e6, accent: #8b5a2b, danger: #c0392b, tint: rgba(139, 90, 43, .14),
+  ),
+  // ── 무늬 5종 (무늬는 _patterns.scss 에 있어요) ──
+  "sakura": (
+    bg: #fff0f5,
+    surface: #fff7fa, field: #ffffff, line: #f4b2c6, ink: #5a2036, muted: #9a6a7c,
+    btn: #d6558a, btn-ink: #ffffff, accent: #e0689a, danger: #c0392b, tint: rgba(224, 104, 154, .14),
+  ),
+  "snow": (
+    bg: #16284d,
+    surface: #20376a, field: #294479, line: #3f5c9a, ink: #eaf2ff, muted: #a3b8de,
+    btn: #bfe0ff, btn-ink: #10264a, accent: #bfe0ff, danger: #ff9aa8, tint: rgba(191, 224, 255, .14),
+  ),
+  "daisy": (
+    bg: #d3edc0,
+    surface: #f6fcf0, field: #ffffff, line: #aed89a, ink: #25451a, muted: #678a58,
+    btn: #3f8f2a, btn-ink: #ffffff, accent: #4fa33a, danger: #c0392b, tint: rgba(79, 163, 58, .14),
+  ),
+  "grid": (
+    bg: #fbfbf6,
+    surface: #ffffff, field: #f5f7fa, line: #c9d3df, ink: #2b3a4d, muted: #7a8797,
+    btn: #3a5a8c, btn-ink: #ffffff, accent: #4a6fa8, danger: #c0392b, tint: rgba(74, 111, 168, .12),
+  ),
+  "lined": (
+    bg: #fffdf2,
+    surface: #ffffff, field: #f6f8fc, line: #cfd8e6, ink: #33415c, muted: #7c879c,
+    btn: #3d5a99, btn-ink: #ffffff, accent: #4d6fb5, danger: #c0392b, tint: rgba(77, 111, 181, .12),
+  ),
+  // ── 단색 추가: 라벤더 ──
+  "lavender": (
+    bg: #e4d9f7,
+    surface: #f6f1ff, field: #ffffff, line: #c4b0ec, ink: #3b2a66, muted: #7d6ca3,
+    btn: #6a4fb8, btn-ink: #ffffff, accent: #7a5fc8, danger: #c0392b, tint: rgba(122, 95, 200, .14),
+  ),
+  // ── 무늬 추가: 발자국(차콜 포인트), 클로버 ──
+  "paw": (
+    bg: #fff4f4,
+    surface: #fffafa, field: #ffffff, line: #efc4cc, ink: #3a2a2a, muted: #8a7378,
+    btn: #3a3a3a, btn-ink: #ffffff, accent: #3a3a3a, danger: #c0392b, tint: rgba(58, 58, 58, .1),
+  ),
+  "clover": (
+    bg: #eaf7e0,
+    surface: #f8fdf4, field: #ffffff, line: #b9e0ac, ink: #1e4d1c, muted: #5f8a5a,
+    btn: #3f9a3a, btn-ink: #ffffff, accent: #3f9a3a, danger: #c0392b, tint: rgba(63, 154, 58, .14),
+  ),
   // ── 내 사진 (앱 안에서 고른 사진이 배경, 카드는 반투명한 흰색) ──
   "custom": (
     bg: #2b2b2b,
@@ -80,14 +129,20 @@ $themes: (
     btn: #9a4708, btn-ink: #ffffff, accent: #d06a14, danger: #b3261e, tint: rgba(208, 106, 20, .14),
   ),
   "green": (
-    bg: #dcf1c4,
-    surface: #f7fcee, field: #ffffff, line: #bcd9a0, ink: #2f4a1d, muted: #6d8156,
-    btn: #4a7a1c, btn-ink: #ffffff, accent: #5f952a, danger: #c0392b, tint: rgba(95, 149, 42, .14),
+    bg: #dcff7d,
+    surface: #f6ffd6, field: #fdfff0, line: #b3db4f, ink: #2c4508, muted: #667f25,
+    btn: #3f6b00, btn-ink: #ffffff, accent: #4f8200, danger: #c0392b, tint: rgba(79, 130, 0, .14),
+  ),
+  // 딥그린 — 아주 깊은 숲색. 버튼은 연한 민트그린
+  "forest": (
+    bg: #0e271e,
+    surface: #16382b, field: #0b1f17, line: #2f5c49, ink: #e8f5ec, muted: #8fbfa6,
+    btn: #7fd1a0, btn-ink: #0a1d15, accent: #7fd1a0, danger: #ffb0a8, tint: rgba(127, 209, 160, .16),
   ),
 );
 
 // 어두운 테마 (날짜 선택창, 스크롤바도 어둡게)
-$dark-themes: ("sea", "black");
+$dark-themes: ("sea", "black", "snow", "forest");
 
 @mixin vars($map) {
   @each $name, $value in $map {
@@ -116,7 +171,7 @@ $dark-themes: ("sea", "black");
 //   예: images/bg-pink.png, images/bg-check-sky.png ...
 //   화면 가득 채우는 테마는 아래 $fullscreen 에 적혀 있어요 (밤바다)
 // ─────────────────────────────────────────────
-$fullscreen: ("sea", "custom");   // 무늬 반복 대신 따로 정한 규칙을 쓰는 테마
+$fullscreen: ("sea", "custom", "sakura", "snow", "daisy", "grid", "lined", "paw", "clover");   // 무늬 반복 대신 따로 정한 규칙을 쓰는 테마
 
 @each $theme, $colors in $themes {
   @if not list.index($fullscreen, $theme) {

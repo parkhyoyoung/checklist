@@ -25,9 +25,9 @@
   -webkit-user-select: none;
 }
 
-#detailTitle { cursor: pointer; }
+#detailTitle { cursor: text; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 
-#appTitleInput {
+#appTitleInput, #detailTitleInput {
   flex: 1;
   font: inherit;
   font-size: 20px;
@@ -142,9 +142,11 @@
     transition: transform .18s, background .18s;
   }
 
+  // 켜진 상태: 버튼 색 바탕 + 글자(버튼 위 글자) 색 동그라미 — 어떤 배경 테마에서도 또렷하게 보여요
   &[aria-checked="true"] {
-    background: var(--tint);
-    > i { transform: translateX(20px); background: var(--accent); }
+    background: var(--btn);
+    border-color: var(--btn);
+    > i { transform: translateX(20px); background: var(--btn-ink); }
   }
 }
 
@@ -167,7 +169,7 @@
 
   &:last-child { border-bottom: 0; }
   .t { flex: 1; min-width: 0; padding: 10px 4px 10px 10px; word-break: break-all; }   // 들여쓰기 10px
-  &.done .t { color: var(--muted); text-decoration: line-through; }
+  &.done .t { color: var(--muted); text-decoration: line-through; opacity: .5; }   // 완료한 항목은 더 연하게
 }
 
 .mini-empty { color: var(--muted); font-size: 12px; padding: 12px 4px 2px 10px; }
@@ -212,4 +214,47 @@ body.on-home {
     padding-bottom: 96px;   // 떠 있는 배경 버튼에 마지막 카드가 가려지지 않게
   }
   .panel, .add-row, .view-row { flex: none; }
+}
+
+// 홈 맨 아래 가운데 버전 표기
+.app-ver {
+  flex: none; text-align: center; font-size: 12px; letter-spacing: .5px;
+  color: var(--muted); opacity: .7; padding: 6px 0 10px; pointer-events: none; user-select: none;
+  &:empty { display: none; }
+}
+
+// ? 버튼 (사용 가이드 다시 보기) — 홈 제목 칸 오른쪽
+#home .panel header { padding: 0 40px; }   // 제목이 ? 버튼과 겹치지 않고, 가운데 그대로 있게
+
+.help-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: $edge;
+  background: var(--field);
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+// 무늬가 있는 배경에서는 글자가 무늬에 묻히지 않도록 종이색 알약 위에 올려요
+[data-theme^="check-"], [data-theme="sakura"], [data-theme="snow"], [data-theme="daisy"],
+[data-theme="grid"], [data-theme="lined"], [data-theme="paw"], [data-theme="clover"] {
+  .view-row {
+    .list-count,
+    #viewAllLabel {
+      background: var(--surface);
+      border: $edge;
+      border-radius: 999px;
+      padding: 2px 12px;
+    }
+  }
 }
